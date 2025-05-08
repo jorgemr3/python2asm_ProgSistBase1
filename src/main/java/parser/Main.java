@@ -25,13 +25,13 @@ public class Main {
         PythonSubsetLexer lexer = new PythonSubsetLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-        System.out.println("==========[TOKENS]==========");
-        for (Token t : tokens.getTokens()) {
-            String tokenText = t.getText().replace("\n", "\\n");
-            System.out.printf("Línea %-3d | %-15s (%s)\n", t.getLine(), tokenText,
-                    lexer.getVocabulary().getSymbolicName(t.getType()));
-        }
-        System.out.println("============================\n");
+        // System.out.println("==========[TOKENS]==========");
+        // for (Token t : tokens.getTokens()) {
+        //     String tokenText = t.getText().replace("\n", "\\n");
+        //     System.out.printf("Línea %-3d | %-15s (%s)\n", t.getLine(), tokenText,
+        //             lexer.getVocabulary().getSymbolicName(t.getType()));
+        // }
+        // System.out.println("============================\n");
 
         // 3. Parser
         PythonSubsetParser parser = new PythonSubsetParser(tokens);
