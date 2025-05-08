@@ -95,4 +95,22 @@ public class CodeGenerator implements ASTVisitor<Void> {
         sb.append("    push rax\n\n");
         return null;
     }
+
+    @Override
+public Void visit(parser.ast.StringNode node) {
+    System.out.println("[CodeGen] visit(StringNode): \"" + node.getValue() + "\"");
+    
+    // Aquí podrías empujar la dirección de una cadena si la incluyes en .data.
+    // De momento, solo agregamos un comentario como placeholder.
+    String label = "str" + Math.abs(node.getValue().hashCode());
+    
+    sb.insert(0, "section .data\n" +
+        label + ": db \"" + node.getValue() + "\", 0x0A, 0\n\n" + 
+        sb.substring(sb.indexOf("section .text")));
+
+    sb.append("    lea rdi, [rel ").append(label).append("]\n");
+    sb.append("    ; llamada a print pendiente\n");
+    sb.append("    push rdi\n\n");
+    return null;
+}
 }

@@ -13,7 +13,7 @@ Este proyecto implementa un traductor que convierte un subconjunto del lenguaje 
 
 **Programación de Sistemas Base 1**  
 
-- **Universidad:** Autónoma de Tamaulipas  
+- **Universidad Autónoma de Tamaulipas**
 - **Semestre:** Octavo semestre de 2025  
 - **Profesor:** Muñoz Quintero Dante Adolfo  
 
@@ -29,19 +29,19 @@ Este proyecto implementa un traductor que convierte un subconjunto del lenguaje 
 
 ## Comandos relevantes
 
-Si se llega a modificar el archivo de gramatica en `grammar\PythonSubset.g4`:
+Si se llega a modificar el archivo de gramatica en `grammar\PythonSubset.g4`, ejecuta el siguiente comando para generar los archivos de parser y lexer con la nueva gramatica:
 
 ```bash
 java -jar lib/antlr-4.13.2-complete.jar -Dlanguage=Java -visitor -package parser -o src/main/antlr4/parser grammar/PythonSubset.g4
 ```
 
-Despues, para compilar todo este proyecto:
+Despues, se necesita compilar todo el proyecto:
 
 ```bash
-    javac -cp lib/antlr-4.13.2-complete.jar -d build ^
-  src\main\antlr4\parser\*.java ^
-  src\main\java\parser\*.java ^
-  src\main\java\codegen\*.java ^
+javac -cp lib/antlr-4.13.2-complete.jar -d build `
+  src\main\antlr4\parser\*.java `
+  src\main\java\parser\*.java `
+  src\main\java\codegen\*.java `
   src\main\java\parser\ast\*.java
  ```
 

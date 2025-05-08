@@ -56,6 +56,13 @@ public interface PythonSubsetVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMulDivMod(PythonSubsetParser.MulDivModContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code StringLiteral}
+	 * labeled alternative in {@link PythonSubsetParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringLiteral(PythonSubsetParser.StringLiteralContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code AddSub}
 	 * labeled alternative in {@link PythonSubsetParser#expr}.
 	 * @param ctx the parse tree

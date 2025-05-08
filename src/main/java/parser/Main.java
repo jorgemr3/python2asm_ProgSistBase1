@@ -51,7 +51,7 @@ public class Main {
             return;
         }
 
-        System.out.println("==========[INFO] Iniciando traducción ==========\n");
+        System.out.println("==========[INFO] Iniciando traduccion ==========\n");
         System.out.println("[INFO] Archivo de entrada: " + args[0]);
 
         // 1. Lectura del archivo
@@ -81,7 +81,7 @@ public class Main {
         ASTBuilder astBuilder = new ASTBuilder();
         ASTNode ast = astBuilder.visit(tree);
         if (ast == null) {
-            System.err.println("[ERROR] ASTBuilder devolvió null. Revisa la entrada.");
+            System.err.println("[ERROR] ASTBuilder devuelve null. Revisa la entrada.");
             return;
         }
 
@@ -98,6 +98,6 @@ public class Main {
         System.out.println(asm);
         System.out.println("=========================\n");
 
-        System.out.println("[INFO] Traducción completada exitosamente.");
+        System.out.println("[INFO] Traduccion completada exitosamente.");
     }
 }

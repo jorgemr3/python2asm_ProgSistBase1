@@ -83,4 +83,11 @@ public class ASTPrinter implements ASTVisitor<Void> {
         indent--;
         return null;
     }
+
+    @Override
+    public Void visit(StringNode node) {
+        printIndent();
+        System.out.println("StringNode: \"" + node.getValue() + "\"");
+        return null;
+    }
 }

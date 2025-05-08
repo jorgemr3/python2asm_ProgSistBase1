@@ -9,4 +9,5 @@ public interface ASTVisitor<T> {
     T visit(IntNode node);
     T visit(VarRefNode node);
     T visit(FuncCallNode node);
+    T visit(StringNode node); 
 }

@@ -1,6 +1,6 @@
 // src/main/java/parser/ASTBuilder.java
 package parser;
-
+import parser.PythonSubsetParser.StringLiteralContext;
 import parser.PythonSubsetBaseVisitor;
 import parser.PythonSubsetParser.*;
 import parser.ast.*;
@@ -13,9 +13,9 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitProg(ProgContext ctx) {
         List<ASTNode> stmts = ctx.stmt()
-                                 .stream()
-                                 .map(this::visit)
-                                 .collect(Collectors.toList());
+                .stream()
+                .map(this::visit)
+                .collect(Collectors.toList());
         return new ProgNode(stmts);
     }
 
@@ -83,9 +83,18 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
     public ASTNode visitFuncCall(PythonSubsetParser.FuncCallContext ctx) {
         String name = ctx.IDENTIFIER().getText();
         List<ASTNode> args = ctx.arg_list() != null
-        ? ctx.arg_list().expr().stream().map(this::visit).collect(Collectors.toList())
-        : List.of();
+                ? ctx.arg_list().expr().stream().map(this::visit).collect(Collectors.toList())
+                : List.of();
         return new FuncCallNode(name, args);
+    }
+
+    @Override
+    public ASTNode visitStringLiteral(StringLiteralContext ctx) {
+        // ctx.STRING().getText() devuelve algo como "\"Hello\""
+        String raw = ctx.STRING().getText();
+        // quita las comillas de inicio y fin:
+        String content = raw.substring(1, raw.length() - 1);
+        return new StringNode(content);
     }
 
 }

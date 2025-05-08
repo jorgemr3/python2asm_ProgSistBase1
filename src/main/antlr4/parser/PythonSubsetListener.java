@@ -84,6 +84,18 @@ public interface PythonSubsetListener extends ParseTreeListener {
 	 */
 	void exitMulDivMod(PythonSubsetParser.MulDivModContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code StringLiteral}
+	 * labeled alternative in {@link PythonSubsetParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringLiteral(PythonSubsetParser.StringLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StringLiteral}
+	 * labeled alternative in {@link PythonSubsetParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringLiteral(PythonSubsetParser.StringLiteralContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code AddSub}
 	 * labeled alternative in {@link PythonSubsetParser#expr}.
 	 * @param ctx the parse tree
