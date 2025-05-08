@@ -11,6 +11,7 @@ public class CodeGenerator implements ASTVisitor<Void> {
     private StringBuilder sb = new StringBuilder();
     private Map<String, Integer> varOffsets = new HashMap<>();
     private int nextOffset = 0;
+    
 
     public String generate(ASTNode root) {
         sb.append("section .data\n");

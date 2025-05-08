@@ -71,13 +71,13 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
         return new VarRefNode(ctx.IDENTIFIER().getText());
     }
 
-    @Override
-    public ASTNode visitComparison(ComparisonContext ctx) {
-        ASTNode left = visit(ctx.expr(0));
-        ASTNode right = visit(ctx.expr(1));
-        String op = ctx.comp.getText();
-        return new BinaryOpNode(op, left, right);
-    }
+    // @Override
+    // public ASTNode visitComparison(ComparisonContext ctx) {
+    //     ASTNode left = visit(ctx.expr(0));
+    //     ASTNode right = visit(ctx.expr(1));
+    //     String op = ctx.comp.getText();
+    //     return new BinaryOpNode(op, left, right);
+    // }
 
     @Override
     public ASTNode visitFuncCall(PythonSubsetParser.FuncCallContext ctx) {
