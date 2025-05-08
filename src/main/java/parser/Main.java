@@ -1,37 +1,103 @@
-// src/main/java/parser/Main.java
+// package parser;
+
+// import org.antlr.v4.runtime.CharStream;
+// import org.antlr.v4.runtime.CharStreams;
+// import org.antlr.v4.runtime.CommonTokenStream;
+// import org.antlr.v4.runtime.tree.ParseTree;
+
+// import parser.PythonSubsetLexer;
+// import parser.PythonSubsetParser;
+// import parser.ast.ASTNode;          // <— ASTNode
+// import codegen.CodeGenerator;      // <— CodeGenerator
+
+// public class Main {
+//     public static void main(String[] args) throws Exception {
+//         if (args.length != 1) {
+//             System.err.println("Uso: java parser.Main <archivo.py>");
+//             return;
+//         }
+
+//         CharStream input = CharStreams.fromFileName(args[0]);
+
+//         PythonSubsetLexer lexer = new PythonSubsetLexer(input);
+//         CommonTokenStream tokens = new CommonTokenStream(lexer);
+
+//         PythonSubsetParser parser = new PythonSubsetParser(tokens);
+//         ParseTree tree = parser.prog();  // regla inicial: prog
+
+//         ASTBuilder astBuilder = new ASTBuilder();
+//         ASTNode ast = astBuilder.visit(tree);
+
+//         CodeGenerator codegen = new CodeGenerator();
+//         String asm = codegen.generate(ast);
+
+//         System.out.println(asm);
+//     }
+// }
+
 package parser;
 
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.*;
 
-import parser.PythonSubsetLexer;
-import parser.PythonSubsetParser;
-import parser.ast.ASTNode;          // <— ASTNode
-import codegen.CodeGenerator;      // <— CodeGenerator
+import parser.ast.ASTNode;
+import parser.ast.ASTPrinter;
+import codegen.CodeGenerator;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         if (args.length != 1) {
-            System.err.println("Uso: java parser.Main <archivo.py>");
+            System.err.println("[ERROR] Uso: java parser.Main <archivo.py>");
             return;
         }
-        // 1) Lee el .py
+
+        System.out.println("==========[INFO] Iniciando traducción ==========\n");
+        System.out.println("[INFO] Archivo de entrada: " + args[0]);
+
+        // 1. Lectura del archivo
         CharStream input = CharStreams.fromFileName(args[0]);
-        // 2) Tokeniza
+        System.out.println("[INFO] Lectura completada.\n");
+
+        // 2. Lexer
         PythonSubsetLexer lexer = new PythonSubsetLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        // 3) Parsea
+
+        System.out.println("==========[TOKENS]==========");
+        for (Token t : tokens.getTokens()) {
+            String tokenText = t.getText().replace("\n", "\\n");
+            System.out.printf("Línea %-3d | %-15s (%s)\n", t.getLine(), tokenText,
+                    lexer.getVocabulary().getSymbolicName(t.getType()));
+        }
+        System.out.println("============================\n");
+
+        // 3. Parser
         PythonSubsetParser parser = new PythonSubsetParser(tokens);
-        ParseTree tree = parser.prog();  // regla inicial: prog
-        // 4) Construye AST
+        ParseTree tree = parser.prog();
+        System.out.println("==========[PARSE TREE]==========");
+        System.out.println(tree.toStringTree(parser));
+        System.out.println("================================\n");
+
+        // 4. AST
         ASTBuilder astBuilder = new ASTBuilder();
         ASTNode ast = astBuilder.visit(tree);
-        // 5) Genera ensamblador
+        if (ast == null) {
+            System.err.println("[ERROR] ASTBuilder devolvió null. Revisa la entrada.");
+            return;
+        }
+
+        System.out.println("==========[AST IMPRESO]==========");
+        ASTPrinter printer = new ASTPrinter();
+        printer.print(ast);
+        System.out.println("=================================\n");
+
+        // 5. Generación de código ensamblador
         CodeGenerator codegen = new CodeGenerator();
         String asm = codegen.generate(ast);
-        // 6) Muestra por pantalla (o redirige a .asm)
+
+        System.out.println("==========[ASM]==========");
         System.out.println(asm);
+        System.out.println("=========================\n");
+
+        System.out.println("[INFO] Traducción completada exitosamente.");
     }
 }

@@ -27,7 +27,23 @@ Este proyecto implementa un traductor que convierte un subconjunto del lenguaje 
 
 ---
 
-## Uso
+## Comandos relevantes
+
+Si se llega a modificar el archivo de gramatica en `grammar\PythonSubset.g4`:
+
+```bash
+java -jar lib/antlr-4.13.2-complete.jar -Dlanguage=Java -visitor -package parser -o src/main/antlr4/parser grammar/PythonSubset.g4
+```
+
+Despues, para compilar todo este proyecto:
+
+```bash
+    javac -cp lib/antlr-4.13.2-complete.jar -d build ^
+  src\main\antlr4\parser\*.java ^
+  src\main\java\parser\*.java ^
+  src\main\java\codegen\*.java ^
+  src\main\java\parser\ast\*.java
+ ```
 
 Para traducir un archivo `.py` a ensamblador:
 
