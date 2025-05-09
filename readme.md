@@ -22,8 +22,7 @@ Este proyecto implementa un traductor que convierte un subconjunto del lenguaje 
 ## Desarrolladores
 
 - **Melo Reséndiz Jorge**  
-<!-- - **Domínguez Reyes Pavel Noel**  
-- **Aldama Trinidad Alfonso René**   -->
+
 
 ---
 
