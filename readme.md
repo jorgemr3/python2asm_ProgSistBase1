@@ -22,8 +22,6 @@ Este proyecto implementa un traductor que convierte un subconjunto del lenguaje 
 ## Desarrolladores
 
 - **Melo Reséndiz Jorge**  
-- **Domínguez Reyes Pavel Noel**  
-- **Aldama Trinidad Alfonso René**  
 
 ---
 
@@ -51,5 +49,4 @@ Para traducir un archivo `.py` a ensamblador:
 java -cp "build;lib/antlr-4.13.2-complete.jar" parser.Main src/test/ejemplo.py > build/ejemplo.asm
 ```
 
-## Documentacion 
-Documentacion: https://deepwiki.com/jorgemr3/python2asm_ProgSistBase1
+## Documentacion: <https://deepwiki.com/jorgemr3/python2asm_ProgSistBase1>
