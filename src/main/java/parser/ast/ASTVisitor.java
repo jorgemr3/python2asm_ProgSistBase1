@@ -6,6 +6,7 @@ public interface ASTVisitor<T> {
     T visit(AssignNode node);
     T visit(ExprStmtNode node);
     T visit(BinaryOpNode node);
+    T visit(UnaryOpNode node);
     T visit(IntNode node);
     T visit(VarRefNode node);
     T visit(FuncCallNode node);

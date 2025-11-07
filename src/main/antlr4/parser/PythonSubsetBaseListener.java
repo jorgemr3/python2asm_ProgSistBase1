@@ -65,25 +65,49 @@ public class PythonSubsetBaseListener implements PythonSubsetListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterVarRef(PythonSubsetParser.VarRefContext ctx) { }
+	@Override public void enterComparisonExpr(PythonSubsetParser.ComparisonExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitVarRef(PythonSubsetParser.VarRefContext ctx) { }
+	@Override public void exitComparisonExpr(PythonSubsetParser.ComparisonExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFuncCall(PythonSubsetParser.FuncCallContext ctx) { }
+	@Override public void enterLogicalAnd(PythonSubsetParser.LogicalAndContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFuncCall(PythonSubsetParser.FuncCallContext ctx) { }
+	@Override public void exitLogicalAnd(PythonSubsetParser.LogicalAndContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLogicalOr(PythonSubsetParser.LogicalOrContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLogicalOr(PythonSubsetParser.LogicalOrContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterComparison(PythonSubsetParser.ComparisonContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitComparison(PythonSubsetParser.ComparisonContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -101,13 +125,13 @@ public class PythonSubsetBaseListener implements PythonSubsetListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStringLiteral(PythonSubsetParser.StringLiteralContext ctx) { }
+	@Override public void enterArithUnary(PythonSubsetParser.ArithUnaryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStringLiteral(PythonSubsetParser.StringLiteralContext ctx) { }
+	@Override public void exitArithUnary(PythonSubsetParser.ArithUnaryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -125,6 +149,66 @@ public class PythonSubsetBaseListener implements PythonSubsetListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterLogicalNot(PythonSubsetParser.LogicalNotContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLogicalNot(PythonSubsetParser.LogicalNotContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUnaryOp(PythonSubsetParser.UnaryOpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUnaryOp(PythonSubsetParser.UnaryOpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPowerBase(PythonSubsetParser.PowerBaseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPowerBase(PythonSubsetParser.PowerBaseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPower(PythonSubsetParser.PowerContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPower(PythonSubsetParser.PowerContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFuncCall(PythonSubsetParser.FuncCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFuncCall(PythonSubsetParser.FuncCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterParens(PythonSubsetParser.ParensContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -132,18 +216,6 @@ public class PythonSubsetBaseListener implements PythonSubsetListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitParens(PythonSubsetParser.ParensContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPow(PythonSubsetParser.PowContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPow(PythonSubsetParser.PowContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -161,13 +233,25 @@ public class PythonSubsetBaseListener implements PythonSubsetListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterComparison(PythonSubsetParser.ComparisonContext ctx) { }
+	@Override public void enterStringLiteral(PythonSubsetParser.StringLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitComparison(PythonSubsetParser.ComparisonContext ctx) { }
+	@Override public void exitStringLiteral(PythonSubsetParser.StringLiteralContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterVarRef(PythonSubsetParser.VarRefContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitVarRef(PythonSubsetParser.VarRefContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

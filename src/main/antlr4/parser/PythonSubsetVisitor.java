@@ -35,67 +35,116 @@ public interface PythonSubsetVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpr_stmt(PythonSubsetParser.Expr_stmtContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code VarRef}
+	 * Visit a parse tree produced by the {@code ComparisonExpr}
 	 * labeled alternative in {@link PythonSubsetParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitVarRef(PythonSubsetParser.VarRefContext ctx);
+	T visitComparisonExpr(PythonSubsetParser.ComparisonExprContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code FuncCall}
+	 * Visit a parse tree produced by the {@code LogicalAnd}
 	 * labeled alternative in {@link PythonSubsetParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFuncCall(PythonSubsetParser.FuncCallContext ctx);
+	T visitLogicalAnd(PythonSubsetParser.LogicalAndContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code MulDivMod}
+	 * Visit a parse tree produced by the {@code LogicalOr}
 	 * labeled alternative in {@link PythonSubsetParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitMulDivMod(PythonSubsetParser.MulDivModContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code StringLiteral}
-	 * labeled alternative in {@link PythonSubsetParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStringLiteral(PythonSubsetParser.StringLiteralContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code AddSub}
-	 * labeled alternative in {@link PythonSubsetParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAddSub(PythonSubsetParser.AddSubContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code Parens}
-	 * labeled alternative in {@link PythonSubsetParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitParens(PythonSubsetParser.ParensContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code Pow}
-	 * labeled alternative in {@link PythonSubsetParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPow(PythonSubsetParser.PowContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code IntLiteral}
-	 * labeled alternative in {@link PythonSubsetParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIntLiteral(PythonSubsetParser.IntLiteralContext ctx);
+	T visitLogicalOr(PythonSubsetParser.LogicalOrContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PythonSubsetParser#comparison}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitComparison(PythonSubsetParser.ComparisonContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code MulDivMod}
+	 * labeled alternative in {@link PythonSubsetParser#arith_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMulDivMod(PythonSubsetParser.MulDivModContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ArithUnary}
+	 * labeled alternative in {@link PythonSubsetParser#arith_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArithUnary(PythonSubsetParser.ArithUnaryContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AddSub}
+	 * labeled alternative in {@link PythonSubsetParser#arith_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAddSub(PythonSubsetParser.AddSubContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code LogicalNot}
+	 * labeled alternative in {@link PythonSubsetParser#unary_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLogicalNot(PythonSubsetParser.LogicalNotContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code UnaryOp}
+	 * labeled alternative in {@link PythonSubsetParser#unary_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnaryOp(PythonSubsetParser.UnaryOpContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code PowerBase}
+	 * labeled alternative in {@link PythonSubsetParser#unary_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPowerBase(PythonSubsetParser.PowerBaseContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code Power}
+	 * labeled alternative in {@link PythonSubsetParser#power_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPower(PythonSubsetParser.PowerContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FuncCall}
+	 * labeled alternative in {@link PythonSubsetParser#atom_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFuncCall(PythonSubsetParser.FuncCallContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code Parens}
+	 * labeled alternative in {@link PythonSubsetParser#atom_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParens(PythonSubsetParser.ParensContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code IntLiteral}
+	 * labeled alternative in {@link PythonSubsetParser#atom_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIntLiteral(PythonSubsetParser.IntLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code StringLiteral}
+	 * labeled alternative in {@link PythonSubsetParser#atom_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringLiteral(PythonSubsetParser.StringLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code VarRef}
+	 * labeled alternative in {@link PythonSubsetParser#atom_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVarRef(PythonSubsetParser.VarRefContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PythonSubsetParser#arg_list}.
 	 * @param ctx the parse tree

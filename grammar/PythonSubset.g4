@@ -21,21 +21,44 @@ expr_stmt
     : expr (NEWLINE | EOF)
     ;
 
-// Expresiones soportadas
+// Expresiones soportadas (precedencia de menor a mayor)
 expr
+    : expr OR expr                         # LogicalOr
+    | expr AND expr                        # LogicalAnd
+    | comparison                           # ComparisonExpr
+    ;
+
+// Comparaciones # Comparison
+comparison
+    : arith_expr (comp=('==' | '!=' | '>=' | '<=' | '>' | '<') arith_expr)?  
+    ;
+
+// Expresiones aritméticas
+arith_expr
+    : arith_expr op=('+' | '-') arith_expr # AddSub
+    | arith_expr op=('*' | '/' | '%') arith_expr # MulDivMod
+    | unary_expr                           # ArithUnary
+    ;
+
+// Expresiones unarias y potencia (asociatividad derecha)
+unary_expr
+    : NOT unary_expr                       # LogicalNot
+    | ('+' | '-') unary_expr               # UnaryOp
+    | power_expr                           # PowerBase
+    ;
+
+// Potencia con asociatividad derecha
+power_expr
+    : atom_expr ('**' unary_expr)?          # Power
+    ;
+
+// Expresiones atómicas (mayor precedencia)
+atom_expr
     : IDENTIFIER '(' arg_list? ')'         # FuncCall
-    | expr '^' expr                        # Pow
-    | expr op=('*' | '/' | '%') expr       # MulDivMod
-    | expr op=('+' | '-') expr             # AddSub
     | '(' expr ')'                         # Parens
     | INT                                  # IntLiteral
     | STRING                               # StringLiteral
     | IDENTIFIER                           # VarRef
-    ;
-
-// Comparaciones (útil para if más adelante)
-comparison
-    : expr comp=('==' | '!=' | '>=' | '<=' | '>' | '<') expr
     ;
 
 // Lista de argumentos para llamadas
@@ -44,6 +67,11 @@ arg_list
     ;
 
 // ------ Lexer Rules ------
+
+// Palabras clave (deben ir antes de IDENTIFIER)
+AND     : 'and' ;
+OR      : 'or' ;
+NOT     : 'not' ;
 
 IDENTIFIER
     : [a-zA-Z_] [a-zA-Z_0-9]*

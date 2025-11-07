@@ -58,6 +58,16 @@ public class ASTPrinter implements ASTVisitor<Void> {
     }
 
     @Override
+    public Void visit(UnaryOpNode node) {
+        printIndent();
+        System.out.println("UnaryOpNode: " + node.getOp());
+        indent++;
+        node.getOperand().accept(this);
+        indent--;
+        return null;
+    }
+
+    @Override
     public Void visit(IntNode node) {
         printIndent();
         System.out.println("IntNode: " + node.getValue());
