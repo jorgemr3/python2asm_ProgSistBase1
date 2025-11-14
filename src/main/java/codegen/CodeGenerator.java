@@ -13,6 +13,11 @@ public class CodeGenerator implements ASTVisitor<Void> {
     private Map<String, Integer> varOffsets = new HashMap<>();
     private Map<String, String> stringLiterals = new LinkedHashMap<>(); // Mantiene orden de inserción
     private int nextOffset = 0;
+    private int labelCounter = 0;
+    
+    private String getUniqueLabel(String prefix) {
+        return prefix + (labelCounter++);
+    }
     
 
     public String generate(ASTNode root) {
@@ -67,8 +72,25 @@ public class CodeGenerator implements ASTVisitor<Void> {
             for (ASTNode arg : funcCall.getArgs()) {
                 collectStrings(arg);
             }
+        } else if (node instanceof ForNode) {
+            ForNode forNode = (ForNode) node;
+            collectStrings(forNode.getIterable());
+            for (ASTNode stmt : forNode.getBody()) {
+                collectStrings(stmt);
+            }
+        } else if (node instanceof WhileNode) {
+            WhileNode whileNode = (WhileNode) node;
+            collectStrings(whileNode.getCondition());
+            for (ASTNode stmt : whileNode.getBody()) {
+                collectStrings(stmt);
+            }
+        } else if (node instanceof RangeNode) {
+            RangeNode rangeNode = (RangeNode) node;
+            for (ASTNode arg : rangeNode.getArgs()) {
+                collectStrings(arg);
+            }
         }
-        // VarRefNode e IntNode no contienen strings, no necesitan procesamiento
+        // VarRefNode, IntNode y BoolNode no contienen strings, no necesitan procesamiento
     }
     
     private void generateDataSection() {
@@ -159,11 +181,21 @@ public class CodeGenerator implements ASTVisitor<Void> {
         return null;
     }
 
+    @Override
     public Void visit(IntNode node) {
         sb.append("    push ").append(node.getValue()).append("\n\n");
         return null;
     }
 
+    @Override
+    public Void visit(BoolNode node) {
+        // True = 1, False = 0
+        int value = node.getValue() ? 1 : 0;
+        sb.append("    push ").append(value).append("\n\n");
+        return null;
+    }
+
+    @Override
     public Void visit(VarRefNode node) {
         String name = node.getName();
         if (!varOffsets.containsKey(name)) {
@@ -196,6 +228,110 @@ public class CodeGenerator implements ASTVisitor<Void> {
         // Solo generar el código para cargar la dirección del string
         sb.append("    lea rdi, [rel ").append(label).append("]\n");
         sb.append("    push rdi\n\n");
+        return null;
+    }
+
+    @Override
+    public Void visit(ForNode node) {
+        // Generar código para el ciclo for
+        String loopStart = getUniqueLabel("loop_start_");
+        String loopEnd = getUniqueLabel("loop_end_");
+        
+        // Asegurar que la variable de iteración tenga espacio en la pila
+        varOffsets.computeIfAbsent(node.getVariable(), k -> nextOffset -= 8);
+        int varOffset = varOffsets.get(node.getVariable());
+        
+        if (node.getIterable() instanceof RangeNode) {
+            RangeNode range = (RangeNode) node.getIterable();
+            int start = range.getStart();
+            int stop = range.getStop();
+            int step = range.getStep();
+            
+            // Inicializar variable de iteración
+            sb.append("    ; Inicializar ciclo for ").append(node.getVariable()).append("\n");
+            sb.append("    mov rax, ").append(start).append("\n");
+            sb.append("    mov [rbp").append(varOffset).append("], rax\n\n");
+            
+            // Etiqueta de inicio del ciclo
+            sb.append(loopStart).append(":\n");
+            
+            // Condición del ciclo
+            sb.append("    ; Verificar condición del ciclo\n");
+            sb.append("    mov rax, [rbp").append(varOffset).append("]\n");
+            sb.append("    cmp rax, ").append(stop).append("\n");
+            if (step > 0) {
+                sb.append("    jge ").append(loopEnd).append("\n\n");
+            } else {
+                sb.append("    jle ").append(loopEnd).append("\n\n");
+            }
+            
+            // Ejecutar cuerpo del ciclo
+            sb.append("    ; Cuerpo del ciclo\n");
+            for (ASTNode stmt : node.getBody()) {
+                stmt.accept(this);
+            }
+            
+            // Incrementar variable de iteración
+            sb.append("    ; Incrementar variable de iteración\n");
+            sb.append("    mov rax, [rbp").append(varOffset).append("]\n");
+            if (step == 1) {
+                sb.append("    inc rax\n");
+            } else if (step == -1) {
+                sb.append("    dec rax\n");
+            } else {
+                sb.append("    add rax, ").append(step).append("\n");
+            }
+            sb.append("    mov [rbp").append(varOffset).append("], rax\n");
+            sb.append("    jmp ").append(loopStart).append("\n\n");
+            
+            // Etiqueta de fin del ciclo
+            sb.append(loopEnd).append(":\n");
+            sb.append("    ; Fin del ciclo for\n\n");
+        } else {
+            // Por ahora solo soportamos range()
+            throw new RuntimeException("Solo se soporta range() en ciclos for");
+        }
+        
+        return null;
+    }
+
+    @Override
+    public Void visit(WhileNode node) {
+        // Generar código para el ciclo while
+        String loopStart = getUniqueLabel("while_start_");
+        String loopEnd = getUniqueLabel("while_end_");
+        
+        // Etiqueta de inicio del ciclo
+        sb.append(loopStart).append(":\n");
+        
+        // Evaluar condición del while
+        sb.append("    ; Evaluar condición del while\n");
+        node.getCondition().accept(this);
+        sb.append("    pop rax\n");
+        sb.append("    test rax, rax\n");
+        sb.append("    jz ").append(loopEnd).append("\n\n");
+        
+        // Ejecutar cuerpo del ciclo
+        sb.append("    ; Cuerpo del ciclo while\n");
+        for (ASTNode stmt : node.getBody()) {
+            stmt.accept(this);
+        }
+        
+        // Volver al inicio del ciclo
+        sb.append("    jmp ").append(loopStart).append("\n\n");
+        
+        // Etiqueta de fin del ciclo
+        sb.append(loopEnd).append(":\n");
+        sb.append("    ; Fin del ciclo while\n\n");
+        
+        return null;
+    }
+
+    @Override
+    public Void visit(RangeNode node) {
+        // RangeNode normalmente se procesa dentro de ForNode
+        // Si se visita directamente, podríamos generar un array o similar
+        // Por simplicidad, no hacer nada aquí por ahora
         return null;
     }
 }

@@ -2,10 +2,15 @@
 
 Este proyecto implementa un traductor que convierte un subconjunto del lenguaje Python a código ensamblador x86_64 para Linux. Utiliza ANTLR4 para el análisis sintáctico y genera código ensamblador optimizado, soportando:
 
-- Expresiones aritméticas
-- Comparaciones
-- Asignaciones
+- Expresiones aritméticas basicas (suma, resta, multiplicación, división)
+- Expresiones unarias y potencias (por ejemplo, `-x`, `x**y`)
+- Comparaciones (por ejemplo, `==`, `!=`, `<`, `>`, `<=`, `>=`)
+- Asignaciones a variables
+- Indentacion y dedentacion para bloques de código manejado por stacks
 - Llamadas básicas a funciones (por ejemplo, `print`)
+- Operadores logicos (`and`, `or`, `not`)
+- Ciclos `for` iterando sobre rangos definidos con `range()`
+- Ciclos `while` con condiciones
 
 ---
 

@@ -23,6 +23,18 @@ public interface PythonSubsetVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStmt(PythonSubsetParser.StmtContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link PythonSubsetParser#simple_stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSimple_stmt(PythonSubsetParser.Simple_stmtContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PythonSubsetParser#compound_stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompound_stmt(PythonSubsetParser.Compound_stmtContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link PythonSubsetParser#assign_stmt}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -34,6 +46,51 @@ public interface PythonSubsetVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExpr_stmt(PythonSubsetParser.Expr_stmtContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PythonSubsetParser#for_stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFor_stmt(PythonSubsetParser.For_stmtContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PythonSubsetParser#while_stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWhile_stmt(PythonSubsetParser.While_stmtContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PythonSubsetParser#iterable}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIterable(PythonSubsetParser.IterableContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PythonSubsetParser#range_call}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRange_call(PythonSubsetParser.Range_callContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code RangeStop}
+	 * labeled alternative in {@link PythonSubsetParser#range_args}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRangeStop(PythonSubsetParser.RangeStopContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code RangeStartStop}
+	 * labeled alternative in {@link PythonSubsetParser#range_args}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRangeStartStop(PythonSubsetParser.RangeStartStopContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code RangeStartStopStep}
+	 * labeled alternative in {@link PythonSubsetParser#range_args}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRangeStartStopStep(PythonSubsetParser.RangeStartStopStepContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code ComparisonExpr}
 	 * labeled alternative in {@link PythonSubsetParser#expr}.
@@ -138,6 +195,20 @@ public interface PythonSubsetVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitStringLiteral(PythonSubsetParser.StringLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code TrueLiteral}
+	 * labeled alternative in {@link PythonSubsetParser#atom_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTrueLiteral(PythonSubsetParser.TrueLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FalseLiteral}
+	 * labeled alternative in {@link PythonSubsetParser#atom_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFalseLiteral(PythonSubsetParser.FalseLiteralContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code VarRef}
 	 * labeled alternative in {@link PythonSubsetParser#atom_expr}.

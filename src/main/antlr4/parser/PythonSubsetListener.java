@@ -28,6 +28,26 @@ public interface PythonSubsetListener extends ParseTreeListener {
 	 */
 	void exitStmt(PythonSubsetParser.StmtContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link PythonSubsetParser#simple_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterSimple_stmt(PythonSubsetParser.Simple_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PythonSubsetParser#simple_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitSimple_stmt(PythonSubsetParser.Simple_stmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PythonSubsetParser#compound_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterCompound_stmt(PythonSubsetParser.Compound_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PythonSubsetParser#compound_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitCompound_stmt(PythonSubsetParser.Compound_stmtContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link PythonSubsetParser#assign_stmt}.
 	 * @param ctx the parse tree
 	 */
@@ -47,6 +67,82 @@ public interface PythonSubsetListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpr_stmt(PythonSubsetParser.Expr_stmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PythonSubsetParser#for_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterFor_stmt(PythonSubsetParser.For_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PythonSubsetParser#for_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitFor_stmt(PythonSubsetParser.For_stmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PythonSubsetParser#while_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhile_stmt(PythonSubsetParser.While_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PythonSubsetParser#while_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhile_stmt(PythonSubsetParser.While_stmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PythonSubsetParser#iterable}.
+	 * @param ctx the parse tree
+	 */
+	void enterIterable(PythonSubsetParser.IterableContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PythonSubsetParser#iterable}.
+	 * @param ctx the parse tree
+	 */
+	void exitIterable(PythonSubsetParser.IterableContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PythonSubsetParser#range_call}.
+	 * @param ctx the parse tree
+	 */
+	void enterRange_call(PythonSubsetParser.Range_callContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PythonSubsetParser#range_call}.
+	 * @param ctx the parse tree
+	 */
+	void exitRange_call(PythonSubsetParser.Range_callContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code RangeStop}
+	 * labeled alternative in {@link PythonSubsetParser#range_args}.
+	 * @param ctx the parse tree
+	 */
+	void enterRangeStop(PythonSubsetParser.RangeStopContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code RangeStop}
+	 * labeled alternative in {@link PythonSubsetParser#range_args}.
+	 * @param ctx the parse tree
+	 */
+	void exitRangeStop(PythonSubsetParser.RangeStopContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code RangeStartStop}
+	 * labeled alternative in {@link PythonSubsetParser#range_args}.
+	 * @param ctx the parse tree
+	 */
+	void enterRangeStartStop(PythonSubsetParser.RangeStartStopContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code RangeStartStop}
+	 * labeled alternative in {@link PythonSubsetParser#range_args}.
+	 * @param ctx the parse tree
+	 */
+	void exitRangeStartStop(PythonSubsetParser.RangeStartStopContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code RangeStartStopStep}
+	 * labeled alternative in {@link PythonSubsetParser#range_args}.
+	 * @param ctx the parse tree
+	 */
+	void enterRangeStartStopStep(PythonSubsetParser.RangeStartStopStepContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code RangeStartStopStep}
+	 * labeled alternative in {@link PythonSubsetParser#range_args}.
+	 * @param ctx the parse tree
+	 */
+	void exitRangeStartStopStep(PythonSubsetParser.RangeStartStopStepContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ComparisonExpr}
 	 * labeled alternative in {@link PythonSubsetParser#expr}.
@@ -225,6 +321,30 @@ public interface PythonSubsetListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStringLiteral(PythonSubsetParser.StringLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code TrueLiteral}
+	 * labeled alternative in {@link PythonSubsetParser#atom_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterTrueLiteral(PythonSubsetParser.TrueLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code TrueLiteral}
+	 * labeled alternative in {@link PythonSubsetParser#atom_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitTrueLiteral(PythonSubsetParser.TrueLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FalseLiteral}
+	 * labeled alternative in {@link PythonSubsetParser#atom_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterFalseLiteral(PythonSubsetParser.FalseLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FalseLiteral}
+	 * labeled alternative in {@link PythonSubsetParser#atom_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitFalseLiteral(PythonSubsetParser.FalseLiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code VarRef}
 	 * labeled alternative in {@link PythonSubsetParser#atom_expr}.

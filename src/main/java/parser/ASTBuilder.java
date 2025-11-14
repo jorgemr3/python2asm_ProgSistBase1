@@ -20,6 +20,35 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
     }
 
     @Override
+    public ASTNode visitStmt(StmtContext ctx) {
+        if (ctx.simple_stmt() != null) {
+            return visit(ctx.simple_stmt());
+        } else {
+            return visit(ctx.compound_stmt());
+        }
+    }
+
+    @Override
+    public ASTNode visitSimple_stmt(Simple_stmtContext ctx) {
+        if (ctx.assign_stmt() != null) {
+            return visit(ctx.assign_stmt());
+        } else {
+            return visit(ctx.expr_stmt());
+        }
+    }
+
+    @Override
+    public ASTNode visitCompound_stmt(Compound_stmtContext ctx) {
+        if (ctx.for_stmt() != null) {
+            return visit(ctx.for_stmt());
+        } else {
+            return visit(ctx.while_stmt());
+        }
+    }
+
+    // ===== NUEVOS MÉTODOS PARA LA GRAMÁTICA ACTUALIZADA =====
+    
+    @Override
     public ASTNode visitAssign_stmt(Assign_stmtContext ctx) {
         String name = ctx.IDENTIFIER().getText();
         ASTNode expr = visit(ctx.expr());
@@ -132,6 +161,16 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
     }
 
     @Override
+    public ASTNode visitTrueLiteral(TrueLiteralContext ctx) {
+        return new BoolNode(true);
+    }
+
+    @Override
+    public ASTNode visitFalseLiteral(FalseLiteralContext ctx) {
+        return new BoolNode(false);
+    }
+
+    @Override
     public ASTNode visitVarRef(VarRefContext ctx) {
         return new VarRefNode(ctx.IDENTIFIER().getText());
     }
@@ -160,6 +199,74 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
         // quita las comillas de inicio y fin:
         String content = raw.substring(1, raw.length() - 1);
         return new StringNode(content);
+    }
+
+    // ===== NUEVOS MÉTODOS PARA FOR LOOPS =====
+
+    @Override
+    public ASTNode visitFor_stmt(For_stmtContext ctx) {
+        String variable = ctx.IDENTIFIER().getText();
+        ASTNode iterable = visit(ctx.iterable());
+        
+        // Procesar directamente los statements del bloque indentado
+        List<ASTNode> body = ctx.stmt()
+                .stream()
+                .map(this::visit)
+                .collect(Collectors.toList());
+        
+        return new ForNode(variable, iterable, body);
+    }
+
+    @Override
+    public ASTNode visitWhile_stmt(While_stmtContext ctx) {
+        ASTNode condition = visit(ctx.expr());
+        
+        // Procesar directamente los statements del bloque indentado
+        List<ASTNode> body = ctx.stmt()
+                .stream()
+                .map(this::visit)
+                .collect(Collectors.toList());
+        
+        return new WhileNode(condition, body);
+    }
+
+    @Override
+    public ASTNode visitIterable(IterableContext ctx) {
+        if (ctx.range_call() != null) {
+            return visit(ctx.range_call());
+        } else {
+            return visit(ctx.expr());
+        }
+    }
+
+    @Override
+    public ASTNode visitRange_call(Range_callContext ctx) {
+        return visit(ctx.range_args());
+    }
+
+    @Override
+    public ASTNode visitRangeStop(RangeStopContext ctx) {
+        List<ASTNode> args = List.of(visit(ctx.expr()));
+        return new RangeNode(args);
+    }
+
+    @Override
+    public ASTNode visitRangeStartStop(RangeStartStopContext ctx) {
+        List<ASTNode> args = List.of(
+            visit(ctx.expr(0)),  // start
+            visit(ctx.expr(1))   // stop
+        );
+        return new RangeNode(args);
+    }
+
+    @Override
+    public ASTNode visitRangeStartStopStep(RangeStartStopStepContext ctx) {
+        List<ASTNode> args = List.of(
+            visit(ctx.expr(0)),  // start
+            visit(ctx.expr(1)),  // stop
+            visit(ctx.expr(2))   // step
+        );
+        return new RangeNode(args);
     }
 
 }

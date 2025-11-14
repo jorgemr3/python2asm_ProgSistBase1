@@ -5,20 +5,61 @@ prog
     : stmt+ EOF
     ;
 
-// Sentencias: asignaciones y expresiones (incluye llamadas)
+// Sentencias: asignaciones, expresiones y ciclos for
 stmt
+    : simple_stmt NEWLINE
+    | compound_stmt
+    | NEWLINE  // Líneas vacías
+    ;
+
+// Sentencias simples (una línea)
+simple_stmt
     : assign_stmt
     | expr_stmt
     ;
 
-// Asignación: variable = expresión, termina con NEWLINE o EOF
-assign_stmt
-    : IDENTIFIER '=' expr (NEWLINE | EOF)
+// Sentencias compuestas (con bloques)
+compound_stmt
+    : for_stmt
+    | while_stmt
     ;
 
-// Expresión como sentencia: expr + NEWLINE/EOF
+// Asignación: variable = expresión
+assign_stmt
+    : IDENTIFIER '=' expr
+    ;
+
+// Expresión como sentencia
 expr_stmt
-    : expr (NEWLINE | EOF)
+    : expr
+    ;
+
+// Ciclo for con indentación Python
+for_stmt
+    : FOR IDENTIFIER IN iterable ':' NEWLINE INDENT stmt+ DEDENT
+    ;
+
+// Ciclo while con indentación Python  
+while_stmt
+    : WHILE expr ':' NEWLINE INDENT stmt+ DEDENT
+    ;
+
+// Expresiones que pueden ser iteradas (por ahora solo range)
+iterable
+    : range_call
+    | expr  // Para futuras extensiones
+    ;
+
+// Llamada específica a range()
+range_call
+    : 'range' '(' range_args ')' 
+    ;
+
+// Argumentos de range: range(stop) o range(start, stop) o range(start, stop, step)
+range_args
+    : expr                           # RangeStop
+    | expr ',' expr                  # RangeStartStop  
+    | expr ',' expr ',' expr         # RangeStartStopStep
     ;
 
 // Expresiones soportadas (precedencia de menor a mayor)
@@ -58,6 +99,8 @@ atom_expr
     | '(' expr ')'                         # Parens
     | INT                                  # IntLiteral
     | STRING                               # StringLiteral
+    | TRUE                                 # TrueLiteral
+    | FALSE                                # FalseLiteral
     | IDENTIFIER                           # VarRef
     ;
 
@@ -69,9 +112,18 @@ arg_list
 // ------ Lexer Rules ------
 
 // Palabras clave (deben ir antes de IDENTIFIER)
+FOR     : 'for' ;
+WHILE   : 'while' ;
+IN      : 'in' ;
 AND     : 'and' ;
 OR      : 'or' ;
 NOT     : 'not' ;
+TRUE    : 'True' ;
+FALSE   : 'False' ;
+
+// Tokens especiales para indentación (serán generados por el lexer customizado)
+INDENT  : 'INDENT' ;
+DEDENT  : 'DEDENT' ;
 
 IDENTIFIER
     : [a-zA-Z_] [a-zA-Z_0-9]*

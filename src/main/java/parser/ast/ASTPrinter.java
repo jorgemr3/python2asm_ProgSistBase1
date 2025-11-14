@@ -75,6 +75,13 @@ public class ASTPrinter implements ASTVisitor<Void> {
     }
 
     @Override
+    public Void visit(BoolNode node) {
+        printIndent();
+        System.out.println("BoolNode: " + node.getValue());
+        return null;
+    }
+
+    @Override
     public Void visit(VarRefNode node) {
         printIndent();
         System.out.println("VarRefNode: " + node.getName());
@@ -98,6 +105,70 @@ public class ASTPrinter implements ASTVisitor<Void> {
     public Void visit(StringNode node) {
         printIndent();
         System.out.println("StringNode: \"" + node.getValue() + "\"");
+        return null;
+    }
+
+    @Override
+    public Void visit(ForNode node) {
+        printIndent();
+        System.out.println("ForNode: variable=" + node.getVariable());
+        indent++;
+        
+        printIndent();
+        System.out.println("Iterable:");
+        indent++;
+        node.getIterable().accept(this);
+        indent--;
+        
+        printIndent();
+        System.out.println("Body:");
+        indent++;
+        for (ASTNode stmt : node.getBody()) {
+            stmt.accept(this);
+        }
+        indent--;
+        
+        indent--;
+        return null;
+    }
+
+    @Override
+    public Void visit(WhileNode node) {
+        printIndent();
+        System.out.println("WhileNode:");
+        indent++;
+        
+        printIndent();
+        System.out.println("Condition:");
+        indent++;
+        node.getCondition().accept(this);
+        indent--;
+        
+        printIndent();
+        System.out.println("Body:");
+        indent++;
+        for (ASTNode stmt : node.getBody()) {
+            stmt.accept(this);
+        }
+        indent--;
+        
+        indent--;
+        return null;
+    }
+
+    @Override
+    public Void visit(RangeNode node) {
+        printIndent();
+        System.out.println("RangeNode:");
+        indent++;
+        for (int i = 0; i < node.getArgs().size(); i++) {
+            printIndent();
+            System.out.println("Arg " + i + ":");
+            indent++;
+            node.getArgs().get(i).accept(this);
+            indent--;
+        }
+        indent--;
         return null;
     }
 }

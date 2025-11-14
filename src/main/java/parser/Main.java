@@ -21,8 +21,12 @@ public class Main {
         CharStream input = CharStreams.fromFileName(args[0]);
         System.out.println("[INFO] Lectura completada.\n");
 
-        // 2. Lexer
-        PythonSubsetLexer lexer = new PythonSubsetLexer(input);
+        // 2. Preprocesar indentación si es necesario
+        String content = input.toString();
+        CharStream processedInput = preprocessPythonIndentation(content);
+        
+        // 3. Lexer estándar con contenido preprocesado
+        PythonSubsetLexer lexer = new PythonSubsetLexer(processedInput);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
 
         // System.out.println("==========[TOKENS]==========");
@@ -62,5 +66,72 @@ public class Main {
         System.out.println("=========================\n");
 
         System.out.println("[INFO] Traduccion completada exitosamente.");
+    }
+    
+    /**
+     * Preprocesa texto Python convirtiendo indentación en tokens INDENT/DEDENT explícitos
+     */
+    private static CharStream preprocessPythonIndentation(String input) {
+        String[] lines = input.split("\r?\n");
+        StringBuilder result = new StringBuilder();
+        
+        java.util.Deque<Integer> indentStack = new java.util.ArrayDeque<>();
+        indentStack.push(0); // Nivel base
+        
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            
+            // Líneas vacías o comentarios - mantener como están
+            if (line.trim().isEmpty() || line.trim().startsWith("#")) {
+                result.append(line).append("\n");
+                continue;
+            }
+            
+            int indentLevel = getIndentationLevel(line);
+            int currentIndent = indentStack.peek();
+            
+            // Generar tokens de indentación
+            if (indentLevel > currentIndent) {
+                // Aumento de indentación
+                indentStack.push(indentLevel);
+                result.append("INDENT ");
+            } else if (indentLevel < currentIndent) {
+                // Disminución de indentación
+                while (!indentStack.isEmpty() && indentStack.peek() > indentLevel) {
+                    indentStack.pop();
+                    result.append("DEDENT ");
+                }
+            }
+            
+            // Agregar la línea sin indentación inicial
+            result.append(line.trim());
+            // Siempre agregar newline después de cada línea
+            result.append("\n");
+        }
+        
+        // Cerrar todos los bloques pendientes
+        while (indentStack.size() > 1) {
+            indentStack.pop();
+            result.append(" DEDENT");
+        }
+        
+        return CharStreams.fromString(result.toString());
+    }
+    
+    /**
+     * Calcula el nivel de indentación de una línea
+     */
+    private static int getIndentationLevel(String line) {
+        int level = 0;
+        for (char c : line.toCharArray()) {
+            if (c == ' ') {
+                level++;
+            } else if (c == '\t') {
+                level += 4; // Tratar tab como 4 espacios
+            } else {
+                break;
+            }
+        }
+        return level;
     }
 }
