@@ -11,6 +11,7 @@ Este proyecto implementa un traductor que convierte un subconjunto del lenguaje 
 - Operadores logicos (`and`, `or`, `not`)
 - Ciclos `for` iterando sobre rangos definidos con `range()`
 - Ciclos `while` con condiciones
+- Estructuras condicionales `if`, `elif`, `else`
 
 ---
 

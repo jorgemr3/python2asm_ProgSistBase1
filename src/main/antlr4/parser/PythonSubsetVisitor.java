@@ -59,6 +59,24 @@ public interface PythonSubsetVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWhile_stmt(PythonSubsetParser.While_stmtContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link PythonSubsetParser#if_stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIf_stmt(PythonSubsetParser.If_stmtContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PythonSubsetParser#elif_clause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElif_clause(PythonSubsetParser.Elif_clauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PythonSubsetParser#else_clause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElse_clause(PythonSubsetParser.Else_clauseContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link PythonSubsetParser#iterable}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

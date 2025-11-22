@@ -88,6 +88,36 @@ public interface PythonSubsetListener extends ParseTreeListener {
 	 */
 	void exitWhile_stmt(PythonSubsetParser.While_stmtContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link PythonSubsetParser#if_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterIf_stmt(PythonSubsetParser.If_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PythonSubsetParser#if_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitIf_stmt(PythonSubsetParser.If_stmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PythonSubsetParser#elif_clause}.
+	 * @param ctx the parse tree
+	 */
+	void enterElif_clause(PythonSubsetParser.Elif_clauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PythonSubsetParser#elif_clause}.
+	 * @param ctx the parse tree
+	 */
+	void exitElif_clause(PythonSubsetParser.Elif_clauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PythonSubsetParser#else_clause}.
+	 * @param ctx the parse tree
+	 */
+	void enterElse_clause(PythonSubsetParser.Else_clauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PythonSubsetParser#else_clause}.
+	 * @param ctx the parse tree
+	 */
+	void exitElse_clause(PythonSubsetParser.Else_clauseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link PythonSubsetParser#iterable}.
 	 * @param ctx the parse tree
 	 */

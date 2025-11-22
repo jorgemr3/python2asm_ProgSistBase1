@@ -14,5 +14,6 @@ public interface ASTVisitor<T> {
     T visit(StringNode node);
     T visit(ForNode node);
     T visit(WhileNode node);
+    T visit(IfNode node);
     T visit(RangeNode node);
 }

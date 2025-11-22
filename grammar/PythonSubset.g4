@@ -22,6 +22,7 @@ simple_stmt
 compound_stmt
     : for_stmt
     | while_stmt
+    | if_stmt
     ;
 
 // Asignación: variable = expresión
@@ -42,6 +43,21 @@ for_stmt
 // Ciclo while con indentación Python  
 while_stmt
     : WHILE expr ':' NEWLINE INDENT stmt+ DEDENT
+    ;
+
+// Sentencia if con elif y else opcionales
+if_stmt
+    : IF expr ':' NEWLINE INDENT stmt+ DEDENT elif_clause* else_clause?
+    ;
+
+// Cláusula elif
+elif_clause
+    : ELIF expr ':' NEWLINE INDENT stmt+ DEDENT
+    ;
+
+// Cláusula else
+else_clause
+    : ELSE ':' NEWLINE INDENT stmt+ DEDENT
     ;
 
 // Expresiones que pueden ser iteradas (por ahora solo range)
@@ -114,6 +130,9 @@ arg_list
 // Palabras clave (deben ir antes de IDENTIFIER)
 FOR     : 'for' ;
 WHILE   : 'while' ;
+IF      : 'if' ;
+ELIF    : 'elif' ;
+ELSE    : 'else' ;
 IN      : 'in' ;
 AND     : 'and' ;
 OR      : 'or' ;

@@ -157,6 +157,67 @@ public class ASTPrinter implements ASTVisitor<Void> {
     }
 
     @Override
+    public Void visit(IfNode node) {
+        printIndent();
+        System.out.println("IfNode:");
+        indent++;
+        
+        printIndent();
+        System.out.println("Condition:");
+        indent++;
+        node.getCondition().accept(this);
+        indent--;
+        
+        printIndent();
+        System.out.println("Then:");
+        indent++;
+        for (ASTNode stmt : node.getThenBody()) {
+            stmt.accept(this);
+        }
+        indent--;
+        
+        // Imprimir elif clauses
+        if (!node.getElifClauses().isEmpty()) {
+            for (int i = 0; i < node.getElifClauses().size(); i++) {
+                IfNode.ElifClause elifClause = node.getElifClauses().get(i);
+                printIndent();
+                System.out.println("Elif " + (i + 1) + ":");
+                indent++;
+                
+                printIndent();
+                System.out.println("Condition:");
+                indent++;
+                elifClause.getCondition().accept(this);
+                indent--;
+                
+                printIndent();
+                System.out.println("Body:");
+                indent++;
+                for (ASTNode stmt : elifClause.getBody()) {
+                    stmt.accept(this);
+                }
+                indent--;
+                
+                indent--;
+            }
+        }
+        
+        // Imprimir else clause
+        if (node.getElseBody() != null) {
+            printIndent();
+            System.out.println("Else:");
+            indent++;
+            for (ASTNode stmt : node.getElseBody()) {
+                stmt.accept(this);
+            }
+            indent--;
+        }
+        
+        indent--;
+        return null;
+    }
+
+    @Override
     public Void visit(RangeNode node) {
         printIndent();
         System.out.println("RangeNode:");

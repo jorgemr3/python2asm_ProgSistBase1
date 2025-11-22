@@ -84,6 +84,23 @@ public class CodeGenerator implements ASTVisitor<Void> {
             for (ASTNode stmt : whileNode.getBody()) {
                 collectStrings(stmt);
             }
+        } else if (node instanceof IfNode) {
+            IfNode ifNode = (IfNode) node;
+            collectStrings(ifNode.getCondition());
+            for (ASTNode stmt : ifNode.getThenBody()) {
+                collectStrings(stmt);
+            }
+            for (IfNode.ElifClause elifClause : ifNode.getElifClauses()) {
+                collectStrings(elifClause.getCondition());
+                for (ASTNode stmt : elifClause.getBody()) {
+                    collectStrings(stmt);
+                }
+            }
+            if (ifNode.getElseBody() != null) {
+                for (ASTNode stmt : ifNode.getElseBody()) {
+                    collectStrings(stmt);
+                }
+            }
         } else if (node instanceof RangeNode) {
             RangeNode rangeNode = (RangeNode) node;
             for (ASTNode arg : rangeNode.getArgs()) {
@@ -323,6 +340,83 @@ public class CodeGenerator implements ASTVisitor<Void> {
         // Etiqueta de fin del ciclo
         sb.append(loopEnd).append(":\n");
         sb.append("    ; Fin del ciclo while\n\n");
+        
+        return null;
+    }
+
+    @Override
+    public Void visit(IfNode node) {
+        // Generar código para la estructura if-elif-else
+        String endLabel = getUniqueLabel("if_end_");
+        
+        // Evaluar condición del if
+        sb.append("    ; Evaluar condición del if\n");
+        node.getCondition().accept(this);
+        sb.append("    pop rax\n");
+        sb.append("    test rax, rax\n");
+        
+        // Si hay elif o else, saltar al siguiente bloque
+        String nextLabel = null;
+        if (!node.getElifClauses().isEmpty() || node.getElseBody() != null) {
+            nextLabel = getUniqueLabel("elif_else_");
+            sb.append("    jz ").append(nextLabel).append("\n\n");
+        } else {
+            // Si no hay elif ni else, saltar al final
+            sb.append("    jz ").append(endLabel).append("\n\n");
+        }
+        
+        // Cuerpo del then
+        sb.append("    ; Cuerpo del if (then)\n");
+        for (ASTNode stmt : node.getThenBody()) {
+            stmt.accept(this);
+        }
+        sb.append("    jmp ").append(endLabel).append("\n\n");
+        
+        // Procesar cláusulas elif
+        for (int i = 0; i < node.getElifClauses().size(); i++) {
+            if (nextLabel != null) {
+                sb.append(nextLabel).append(":\n");
+            }
+            
+            IfNode.ElifClause elifClause = node.getElifClauses().get(i);
+            
+            // Evaluar condición del elif
+            sb.append("    ; Evaluar condición del elif ").append(i + 1).append("\n");
+            elifClause.getCondition().accept(this);
+            sb.append("    pop rax\n");
+            sb.append("    test rax, rax\n");
+            
+            // Si hay más elif o else, saltar al siguiente bloque
+            if (i < node.getElifClauses().size() - 1 || node.getElseBody() != null) {
+                nextLabel = getUniqueLabel("elif_else_");
+                sb.append("    jz ").append(nextLabel).append("\n\n");
+            } else {
+                sb.append("    jz ").append(endLabel).append("\n\n");
+            }
+            
+            // Cuerpo del elif
+            sb.append("    ; Cuerpo del elif ").append(i + 1).append("\n");
+            for (ASTNode stmt : elifClause.getBody()) {
+                stmt.accept(this);
+            }
+            sb.append("    jmp ").append(endLabel).append("\n\n");
+        }
+        
+        // Procesar cláusula else
+        if (node.getElseBody() != null) {
+            if (nextLabel != null) {
+                sb.append(nextLabel).append(":\n");
+            }
+            
+            sb.append("    ; Cuerpo del else\n");
+            for (ASTNode stmt : node.getElseBody()) {
+                stmt.accept(this);
+            }
+        }
+        
+        // Etiqueta de fin del if
+        sb.append(endLabel).append(":\n");
+        sb.append("    ; Fin del if\n\n");
         
         return null;
     }

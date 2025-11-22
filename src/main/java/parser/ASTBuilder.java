@@ -41,8 +41,10 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
     public ASTNode visitCompound_stmt(Compound_stmtContext ctx) {
         if (ctx.for_stmt() != null) {
             return visit(ctx.for_stmt());
-        } else {
+        } else if (ctx.while_stmt() != null) {
             return visit(ctx.while_stmt());
+        } else {
+            return visit(ctx.if_stmt());
         }
     }
 
@@ -228,6 +230,42 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
                 .collect(Collectors.toList());
         
         return new WhileNode(condition, body);
+    }
+
+    @Override
+    public ASTNode visitIf_stmt(If_stmtContext ctx) {
+        // Condición principal del if
+        ASTNode condition = visit(ctx.expr());
+        
+        // Cuerpo del then
+        List<ASTNode> thenBody = ctx.stmt()
+                .stream()
+                .map(this::visit)
+                .collect(Collectors.toList());
+        
+        // Procesar cláusulas elif
+        List<IfNode.ElifClause> elifClauses = ctx.elif_clause()
+                .stream()
+                .map(elifCtx -> {
+                    ASTNode elifCondition = visit(elifCtx.expr());
+                    List<ASTNode> elifBody = elifCtx.stmt()
+                            .stream()
+                            .map(this::visit)
+                            .collect(Collectors.toList());
+                    return new IfNode.ElifClause(elifCondition, elifBody);
+                })
+                .collect(Collectors.toList());
+        
+        // Procesar cláusula else (si existe)
+        List<ASTNode> elseBody = null;
+        if (ctx.else_clause() != null) {
+            elseBody = ctx.else_clause().stmt()
+                    .stream()
+                    .map(this::visit)
+                    .collect(Collectors.toList());
+        }
+        
+        return new IfNode(condition, thenBody, elifClauses, elseBody);
     }
 
     @Override

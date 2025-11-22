@@ -5,3 +5,4 @@ src/test/ejemplo_braces.py
 src/test/test_while.py
 src/test/test_while_indent.py
 src/test/test_simple_while.py
+src/test/test_if.py
