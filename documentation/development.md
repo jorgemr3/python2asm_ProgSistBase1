@@ -68,20 +68,27 @@ src/
 
 ### Agregar Nuevas Construcciones Sintácticas
 
+#### Ejemplo: Agregar Funciones Definidas por Usuario
+
 #### 1. Modificar Gramática ANTLR
 
 Editar `grammar/PythonSubset.g4`:
 
 ```antlr
-// Ejemplo: Agregar condicional if
-if_stmt
-    : IF expression COLON NEWLINE suite (ELSE COLON NEWLINE suite)?
+// Ejemplo: Agregar definición de funciones
+func_def
+    : 'def' IDENTIFIER '(' param_list? ')' ':' NEWLINE INDENT stmt+ DEDENT
+    ;
+
+param_list
+    : IDENTIFIER (',' IDENTIFIER)*
     ;
 
 compound_stmt
     : for_stmt
     | while_stmt
-    | if_stmt  // Agregar nueva regla
+    | if_stmt
+    | func_def  // Agregar nueva regla
     ;
 ```
 
@@ -94,26 +101,28 @@ java -jar ../lib/antlr-4.13.2-complete.jar PythonSubset.g4 -visitor -o ../src/ma
 
 #### 3. Crear Nodo AST
 
-`src/main/java/parser/ast/IfNode.java`:
+`src/main/java/parser/ast/FuncDefNode.java`:
 
 ```java
-public class IfNode implements ASTNode {
-    private ASTNode condition;
-    private List<ASTNode> thenBody;
-    private List<ASTNode> elseBody; // puede ser null
+public class FuncDefNode implements ASTNode {
+    private String name;
+    private List<String> params;
+    private List<ASTNode> body;
     
-    public IfNode(ASTNode condition, List<ASTNode> thenBody, List<ASTNode> elseBody) {
-        this.condition = condition;
-        this.thenBody = thenBody;
-        this.elseBody = elseBody;
+    public FuncDefNode(String name, List<String> params, List<ASTNode> body) {
+        this.name = name;
+        this.params = params;
+        this.body = body;
     }
+    
+    public String getName() { return name; }
+    public List<String> getParams() { return params; }
+    public List<ASTNode> getBody() { return body; }
     
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visit(this);
     }
-    
-    // Getters...
 }
 ```
 
@@ -124,7 +133,7 @@ public class IfNode implements ASTNode {
 ```java
 public interface ASTVisitor<T> {
     // ... métodos existentes ...
-    T visit(IfNode node);  // Agregar nuevo método
+    T visit(FuncDefNode node);  // Agregar nuevo método
 }
 ```
 
@@ -134,23 +143,22 @@ public interface ASTVisitor<T> {
 
 ```java
 @Override
-public ASTNode visitIf_stmt(PythonSubsetParser.If_stmtContext ctx) {
-    ASTNode condition = visit(ctx.expression());
+public ASTNode visitFunc_def(PythonSubsetParser.Func_defContext ctx) {
+    String name = ctx.IDENTIFIER(0).getText();
     
-    List<ASTNode> thenBody = new ArrayList<>();
-    for (PythonSubsetParser.StatementContext stmt : ctx.suite(0).statement()) {
-        thenBody.add(visit(stmt));
-    }
-    
-    List<ASTNode> elseBody = null;
-    if (ctx.suite().size() > 1) {  // hay else
-        elseBody = new ArrayList<>();
-        for (PythonSubsetParser.StatementContext stmt : ctx.suite(1).statement()) {
-            elseBody.add(visit(stmt));
+    List<String> params = new ArrayList<>();
+    if (ctx.param_list() != null) {
+        for (TerminalNode id : ctx.param_list().IDENTIFIER()) {
+            params.add(id.getText());
         }
     }
     
-    return new IfNode(condition, thenBody, elseBody);
+    List<ASTNode> body = new ArrayList<>();
+    for (PythonSubsetParser.StmtContext stmt : ctx.stmt()) {
+        body.add(visit(stmt));
+    }
+    
+    return new FuncDefNode(name, params, body);
 }
 ```
 
@@ -160,32 +168,36 @@ public ASTNode visitIf_stmt(PythonSubsetParser.If_stmtContext ctx) {
 
 ```java
 @Override
-public String visit(IfNode node) {
-    StringBuilder sb = new StringBuilder();
-    String elseLabel = "else_" + labelCounter++;
-    String endLabel = "end_if_" + labelCounter++;
+public Void visit(FuncDefNode node) {
+    // Generar etiqueta de función
+    sb.append("func_").append(node.getName()).append(":\n");
+    sb.append("    ; Prólogo de función\n");
+    sb.append("    push rbp\n");
+    sb.append("    mov rbp, rsp\n");
     
-    // Evaluar condición
-    sb.append(node.getCondition().accept(this));
-    sb.append("    cmp rax, 0\n");
-    sb.append("    je ").append(elseLabel).append("\n");
-    
-    // Then body
-    for (ASTNode stmt : node.getThenBody()) {
-        sb.append(stmt.accept(this));
-    }
-    sb.append("    jmp ").append(endLabel).append("\n");
-    
-    // Else body (si existe)
-    sb.append(elseLabel).append(":\n");
-    if (node.getElseBody() != null) {
-        for (ASTNode stmt : node.getElseBody()) {
-            sb.append(stmt.accept(this));
-        }
+    // Procesar parámetros (en rdi, rsi, rdx, rcx, r8, r9 según System V ABI)
+    int paramOffset = 16;
+    for (int i = 0; i < node.getParams().size() && i < 6; i++) {
+        String param = node.getParams().get(i);
+        varOffsets.put(param, -paramOffset);
+        // Copiar desde registros a stack
+        String[] regs = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+        sb.append("    mov [rbp-").append(paramOffset).append("], ").append(regs[i]).append("\n");
+        paramOffset += 8;
     }
     
-    sb.append(endLabel).append(":\n");
-    return sb.toString();
+    // Cuerpo de la función
+    for (ASTNode stmt : node.getBody()) {
+        stmt.accept(this);
+    }
+    
+    // Epílogo
+    sb.append("    ; Epílogo de función\n");
+    sb.append("    mov rsp, rbp\n");
+    sb.append("    pop rbp\n");
+    sb.append("    ret\n\n");
+    
+    return null;
 }
 ```
 
@@ -195,22 +207,20 @@ public String visit(IfNode node) {
 
 ```java
 @Override
-public String visit(IfNode node) {
+public String visit(FuncDefNode node) {
     StringBuilder sb = new StringBuilder();
-    sb.append("IfNode:\n");
-    sb.append("  condition: ").append(node.getCondition().accept(this)).append("\n");
-    sb.append("  then: [\n");
-    for (ASTNode stmt : node.getThenBody()) {
+    sb.append("FuncDefNode: ").append(node.getName()).append("\n");
+    sb.append("  Params: [");
+    for (int i = 0; i < node.getParams().size(); i++) {
+        if (i > 0) sb.append(", ");
+        sb.append(node.getParams().get(i));
+    }
+    sb.append("]\n");
+    sb.append("  Body: [\n");
+    for (ASTNode stmt : node.getBody()) {
         sb.append("    ").append(stmt.accept(this)).append("\n");
     }
     sb.append("  ]\n");
-    if (node.getElseBody() != null) {
-        sb.append("  else: [\n");
-        for (ASTNode stmt : node.getElseBody()) {
-            sb.append("    ").append(stmt.accept(this)).append("\n");
-        }
-        sb.append("  ]\n");
-    }
     return sb.toString();
 }
 ```
@@ -219,22 +229,27 @@ public String visit(IfNode node) {
 
 #### Crear Archivo de Prueba
 
-`src/test/test_if.py`:
+`src/test/test_func.py`:
 
 ```python
-x = 10
-if x > 5:
-    print("Mayor que 5")
-else:
-    print("Menor o igual que 5")
-print("Fin")
+def suma(a, b):
+    resultado = a + b
+    return resultado
+
+x = suma(5, 3)
+print(x)  # Debería imprimir 8
 ```
 
 #### Ejecutar y Verificar
 
 ```bash
-java -cp "build:lib/*" parser.Main src/test/test_if.py
+java -cp "build;lib/*" parser.Main src/test/test_func.py
 cat build/ejemplo.asm  # Verificar código generado
+
+# Ensamblar y ejecutar
+nasm -f elf64 build/ejemplo.asm -o build/ejemplo.o
+gcc build/ejemplo.o -o build/programa
+./build/programa
 ```
 
 ## Convenciones de Código
@@ -372,11 +387,16 @@ gcc build/ejemplo.o -o build/programa
 
 ### Características Pendientes
 
-1. **Funciones definidas por usuario**
-2. **Arrays y listas**
-3. **Condicionales if/else/elif**
-4. **Operadores de asignación compuesta** (`+=`, `-=`)
-5. **Import system**
+1. **Funciones definidas por usuario** (parcialmente diseñado arriba)
+2. **Arrays y listas** con indexación y slicing
+3. **Operadores de asignación compuesta** (`+=`, `-=`, `*=`, `/=`)
+4. **Range con múltiples argumentos** (`range(start, stop, step)`)
+5. **Import system** y módulos
+6. **Diccionarios** y otras estructuras de datos
+7. **Excepciones** (try/except)
+8. **Clases y objetos** (OOP básico)
+9. **Operaciones con strings** (concatenación, slicing, format)
+10. **Tipos float/decimal** con operaciones de punto flotante
 
 ## Arquitectura de Extensión
 

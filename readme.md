@@ -46,13 +46,29 @@ javac -cp lib/antlr-4.13.2-complete.jar -d build `
   src\main\antlr4\parser\*.java `
   src\main\java\parser\*.java `
   src\main\java\codegen\*.java `
-  src\main\java\parser\ast\*.java
+  src\main\java\parser\ast\*.java `
+  src\main\java\util\*.java `
  ```
 
 Para traducir un archivo `.py` a ensamblador:
 
 ```bash
 java -cp "build;lib/antlr-4.13.2-complete.jar" parser.Main src/test/ejemplo.py > build/ejemplo.asm
+```
+
+Para ejecutar el TreeView para visualizar el árbol de parseo y arbol de sintaxis abstracta en GUI:
+NOTA: Se necesita el proyecto totalmente recompilado con salida generada en la carpeta `build`.
+
+Arbol de parseo:
+
+```bash
+java -cp "lib/*;build" util.TreeViewer src/test/ejemplo.py
+```
+
+Arbol de sintaxis abstracta:
+
+```bash
+java -cp "build;lib/*" util.ASTViewer src/test/ejemplo.py
 ```
 
 ## Documentacion: <https://deepwiki.com/jorgemr3/python2asm_ProgSistBase1>

@@ -38,11 +38,12 @@ Esta carpeta contiene la documentación completa del proyecto **Compilador Pytho
 El **Compilador Python to x86_64** es una implementación educativa que transforma un subconjunto del lenguaje Python en código ensamblador x86_64. El proyecto demuestra los conceptos fundamentales de construcción de compiladores utilizando tecnologías modernas.
 
 #### **Características Principales:**
-- ✅ **Sintaxis Python**: Soporte para indentación, variables, expresiones
-- ✅ **Estructuras de Control**: Ciclos `for` y `while`
-- ✅ **Tipos de Datos**: Enteros, strings y booleanos
-- ✅ **Expresiones**: Aritméticas, lógicas y de comparación
-- ✅ **Generación ASM**: Código x86_64 optimizado para Linux
+- ✅ **Sintaxis Python**: Soporte completo para indentación, variables, expresiones
+- ✅ **Estructuras de Control**: Ciclos `for` y `while`, condicionales `if/elif/else`
+- ✅ **Tipos de Datos**: Enteros, strings literales y booleanos
+- ✅ **Expresiones**: Aritméticas (+, -, *, /, %, **), lógicas (and, or, not) y comparaciones (==, !=, <, >, <=, >=)
+- ✅ **Operadores Unarios**: Negación aritmética y lógica (-, not, +)
+- ✅ **Generación ASM**: Código x86_64 optimizado para Linux con gestión de strings
 
 #### **Stack Tecnológico:**
 - **ANTLR 4.13.2**: Generación de parsers
@@ -112,17 +113,21 @@ Este proyecto está desarrollado con fines educativos. Consulte el archivo `LICE
 | CodeGen | ✅ Completo | x86_64 básico |
 | Testing | ✅ Funcional | Casos de prueba |
 | Documentation | ✅ Completo | Esta documentación |
+| If/Elif/Else | ✅ Completo | Condicionales completos |
+| While Loops | ✅ Completo | Ciclos while |
+| For Loops | ✅ Completo | Ciclos for con range() |
+| Logical Ops | ✅ Completo | and, or, not |
 | **Features Pendientes** |
-| If/Else | ⏳ Pendiente | Condicionales |
-| Functions | ⏳ Pendiente | Funciones de usuario |
-| Arrays | ⏳ Pendiente | Estructuras de datos |
+| Functions | ⏳ Pendiente | Funciones definidas por usuario |
+| Arrays/Lists | ⏳ Pendiente | Estructuras de datos |
+| Range Args | ⏳ Pendiente | range(start, stop, step) completo |
 
 ### 🔄 **Última Actualización**
 
-**Versión**: 1.0
-**Fecha**: Diciembre 2024
+**Versión**: 2.0
+**Fecha**: Noviembre 2025
 **Autor**: Jorge Melo
-**Estado**: Funcional y documentado
+**Estado**: Funcional y documentado con características completas de control de flujo
 
 Para información sobre versiones y changelog, ver el historial de commits en el repositorio principal.
 

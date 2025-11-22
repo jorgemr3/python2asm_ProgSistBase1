@@ -15,6 +15,7 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
         List<ASTNode> stmts = ctx.stmt()
                 .stream()
                 .map(this::visit)
+                .filter(node -> node != null)  // Filtrar líneas vacías
                 .collect(Collectors.toList());
         return new ProgNode(stmts);
     }
@@ -23,8 +24,11 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
     public ASTNode visitStmt(StmtContext ctx) {
         if (ctx.simple_stmt() != null) {
             return visit(ctx.simple_stmt());
-        } else {
+        } else if (ctx.compound_stmt() != null) {
             return visit(ctx.compound_stmt());
+        } else {
+            // Línea vacía (solo NEWLINE) - ignorar
+            return null;
         }
     }
 
@@ -214,6 +218,7 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
         List<ASTNode> body = ctx.stmt()
                 .stream()
                 .map(this::visit)
+                .filter(node -> node != null)  // Filtrar líneas vacías
                 .collect(Collectors.toList());
         
         return new ForNode(variable, iterable, body);
@@ -227,6 +232,7 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
         List<ASTNode> body = ctx.stmt()
                 .stream()
                 .map(this::visit)
+                .filter(node -> node != null)  // Filtrar líneas vacías
                 .collect(Collectors.toList());
         
         return new WhileNode(condition, body);
@@ -241,6 +247,7 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
         List<ASTNode> thenBody = ctx.stmt()
                 .stream()
                 .map(this::visit)
+                .filter(node -> node != null)  // Filtrar líneas vacías
                 .collect(Collectors.toList());
         
         // Procesar cláusulas elif
@@ -251,6 +258,7 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
                     List<ASTNode> elifBody = elifCtx.stmt()
                             .stream()
                             .map(this::visit)
+                            .filter(node -> node != null)  // Filtrar líneas vacías
                             .collect(Collectors.toList());
                     return new IfNode.ElifClause(elifCondition, elifBody);
                 })
@@ -262,6 +270,7 @@ public class ASTBuilder extends PythonSubsetBaseVisitor<ASTNode> {
             elseBody = ctx.else_clause().stmt()
                     .stream()
                     .map(this::visit)
+                    .filter(node -> node != null)  // Filtrar líneas vacías
                     .collect(Collectors.toList());
         }
         

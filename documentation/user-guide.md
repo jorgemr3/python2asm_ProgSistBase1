@@ -128,13 +128,19 @@ resultado = 2 + 3 * 4  # = 14
 # Operadores de comparación
 mayor = a > b
 menor = a < b
+mayor_igual = a >= b
+menor_igual = a <= b
 igual = a == b
 diferente = a != b
 
-# Operadores lógicos
-y_logico = True and False
-o_logico = True or False
-negacion = not True
+# Operadores lógicos (completamente implementados)
+y_logico = True and False  # False
+o_logico = True or False   # True
+negacion = not True        # False
+
+# Expresiones complejas
+resultado = (x > 5) and (y < 10) or (z == 0)
+complejo = not (a == b) and (c != d)
 ```
 
 ### Estructuras de Control
@@ -166,6 +172,38 @@ while contador < 5:
     contador = contador + 1
 ```
 
+#### Condicionales If/Elif/Else
+```python
+# Sintaxis básica
+if condicion:
+    # cuerpo del if
+    instrucciones...
+elif otra_condicion:
+    # cuerpo del elif
+    instrucciones...
+else:
+    # cuerpo del else
+    instrucciones...
+
+# Ejemplo simple
+x = 10
+if x > 15:
+    print("Mayor que 15")
+elif x > 5:
+    print("Mayor que 5")
+else:
+    print("5 o menor")
+
+# Condicionales anidados
+if x > 0:
+    if x < 10:
+        print("Entre 0 y 10")
+    else:
+        print("Mayor o igual a 10")
+else:
+    print("Menor o igual a 0")
+```
+
 ### Llamadas a Funciones
 ```python
 # Función print soportada
@@ -181,18 +219,22 @@ range(10)     # 0 a 9
 ## Limitaciones Actuales
 
 ### Características No Soportadas
-- **Funciones definidas por usuario**: Solo `print()` y `range()`
-- **Listas y estructuras de datos**: Solo variables escalares
+- **Funciones definidas por usuario**: Solo `print()` y `range()` están implementados
+- **Listas y estructuras de datos**: Solo variables escalares (int, string, bool)
 - **Import statements**: Sin soporte para módulos
-- **Condicionales if/else**: No implementados aún
-- **Anidamiento profundo**: Limitado en ciclos anidados
-- **Tipos float**: Solo enteros y strings
+- **Range con argumentos**: Solo soporta `range(stop)`, no `range(start, stop, step)`
+- **Tipos float/decimal**: Solo enteros, strings y booleanos
+- **Operaciones sobre strings**: No se pueden concatenar o manipular strings
+- **Asignación compuesta**: No soporta `+=`, `-=`, `*=`, etc.
+- **Slicing**: No se pueden hacer operaciones de slicing
 
 ### Restricciones de Sintaxis
-- **Indentación**: Debe ser consistente (4 espacios recomendados)
-- **Nombres de variables**: Solo letras, números y underscore
-- **Strings**: Solo comillas dobles `"texto"`
-- **Comentarios**: No soportados actualmente
+- **Indentación**: Debe ser consistente (4 espacios o tabs, no mezclar)
+- **Nombres de variables**: Solo letras, números y underscore (no pueden empezar con número)
+- **Strings**: Comillas dobles o simples (`"texto"` o `'texto'`)
+- **Comentarios**: Soportados con `#` pero son ignorados por el compilador
+- **Print**: Solo acepta un argumento a la vez
+- **Range**: Solo acepta la forma `range(stop)` con un único argumento
 
 ## Solución de Problemas
 

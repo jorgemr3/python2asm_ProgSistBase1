@@ -39,10 +39,14 @@ Código Python → Lexer → Parser → AST → Generador de Código → ASM x86
 |------|-----------|---------|
 | `ProgNode` | Programa completo | Raíz del AST |
 | `AssignNode` | Asignaciones | `x = 10` |
-| `BinaryOpNode` | Operaciones binarias | `x + y`, `a < b` |
+| `BinaryOpNode` | Operaciones binarias | `x + y`, `a < b`, `a and b` |
+| `UnaryOpNode` | Operaciones unarias | `-x`, `not y`, `+z` |
 | `ForNode` | Ciclos for | `for i in range(10):` |
 | `WhileNode` | Ciclos while | `while x < 5:` |
+| `IfNode` | Condicionales | `if x > 5: ... elif x == 5: ... else: ...` |
 | `FuncCallNode` | Llamadas a función | `print(x)` |
+| `StringNode` | Literales de cadena | `"Hola mundo"` |
+| `RangeNode` | Iterables range | `range(10)`, `range(0, 10, 2)` |
 
 #### **ASTBuilder**
 - **Responsabilidad**: Convierte parse tree en AST
@@ -136,6 +140,10 @@ section .data
 str12345: db "Hello World", 0x0A, 0
 ```
 
+**Sistema de dos fases:**
+1. **Primera pasada (collectStrings)**: Recorre el AST completo identificando todos los StringNode y asignándoles etiquetas únicas basadas en hash
+2. **Segunda pasada (generate)**: Genera la sección .data con todos los strings y luego el código que los referencia
+
 ### **Expresiones**
 - **Stack-based evaluation**: Usa `push`/`pop` para evaluación
 - **Registros temporales**: `rax`, `rbx` para operaciones
@@ -157,5 +165,8 @@ str12345: db "Hello World", 0x0A, 0
 ### **Optimizaciones Futuras**
 - Análisis de flujo de datos
 - Eliminación de código muerto
-- Optimización de registros
+- Optimización de registros (actualmente stack-based)
 - Plegado de constantes
+- Short-circuit evaluation para operadores lógicos (actualmente evalúa ambos operandos)
+- Loop unrolling para rangos conocidos en compile-time
+- Inline de funciones print cuando sea posible

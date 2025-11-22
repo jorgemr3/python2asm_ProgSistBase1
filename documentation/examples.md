@@ -208,12 +208,101 @@ while continuar:
     print(contador)
     contador = contador + 1
     
-    # Simular condición de parada
-    if contador == 3:  # Requiere implementar if
+    # Condición de parada con if
+    if contador == 3:
         continuar = False
 ```
 
-### 6. Combinando Estructuras
+### 6. Condicionales If/Elif/Else
+
+#### If Simple
+```python
+# Archivo: simple_if.py
+x = 10
+
+if x > 5:
+    print("x es mayor que 5")
+
+print("Fin del programa")
+```
+
+**Output Esperado:**
+```
+x es mayor que 5
+Fin del programa
+```
+
+#### If con Else
+```python
+# Archivo: if_else.py
+edad = 18
+
+if edad >= 18:
+    print("Mayor de edad")
+else:
+    print("Menor de edad")
+```
+
+#### If/Elif/Else Completo
+```python
+# Archivo: if_elif_else.py
+calificacion = 85
+
+if calificacion >= 90:
+    print("Excelente")
+elif calificacion >= 80:
+    print("Muy bien")
+elif calificacion >= 70:
+    print("Bien")
+elif calificacion >= 60:
+    print("Suficiente")
+else:
+    print("Insuficiente")
+```
+
+#### Condicionales Anidados
+```python
+# Archivo: nested_if.py
+x = 15
+y = 20
+
+if x > 10:
+    print("x es mayor que 10")
+    if y > 15:
+        print("y también es mayor que 15")
+        if x + y > 30:
+            print("La suma es mayor que 30")
+    else:
+        print("y no es mayor que 15")
+else:
+    print("x no es mayor que 10")
+```
+
+#### If con Expresiones Complejas
+```python
+# Archivo: complex_if.py
+x = 10
+y = 5
+z = 15
+
+# Múltiples condiciones con and
+if x > 5 and y < 10:
+    print("Ambas condiciones son verdaderas")
+
+# Múltiples condiciones con or
+if x < 5 or z > 10:
+    print("Al menos una condición es verdadera")
+
+# Negación con not
+if not (x == y):
+    print("x no es igual a y")
+
+# Combinación compleja
+if (x > y) and (z > x) or (y == 0):
+    print("Expresión compleja evaluada como verdadera")
+```
+
+### 7. Combinando Estructuras
 
 #### For Anidado (Conceptual)
 ```python
@@ -330,7 +419,7 @@ if not encontrado:
     print("No encontrado")
 ```
 
-### 8. Validaciones y Testing
+### 9. Validaciones y Testing
 
 #### Testing de Operadores
 ```python
@@ -401,7 +490,7 @@ print(resultado4)  # Debería ser True
 
 ## Casos Edge y Limitaciones
 
-### 9. Casos Límite
+### 10. Casos Límite
 
 #### Números Grandes
 ```python
@@ -445,39 +534,37 @@ print("True == True =")
 print(es_verdadero)  # Debería ser True
 ```
 
-### 10. Características No Soportadas
+### 11. Características No Soportadas
 
 #### Ejemplos que NO Funcionan
 ```python
 # ESTOS EJEMPLOS NO FUNCIONAN AÚN
 
-# 1. Condicionales if/else
-if x > 5:
-    print("Mayor")
-else:
-    print("Menor")
-
-# 2. Funciones definidas por usuario
-def mi_funcion(parametro):
+# 1. Funciones definidas por usuario
     return parametro * 2
 
-# 3. Listas
+# 2. Listas
 mi_lista = [1, 2, 3, 4, 5]
 
-# 4. Range con múltiples parámetros
-for i in range(1, 10, 2):
+# 3. Range con múltiples parámetros
+for i in range(1, 10, 2):  # Solo range(stop) funciona
     print(i)
 
-# 5. Asignación compuesta
+# 4. Asignación compuesta
 x += 5
 y *= 2
 
-# 6. Múltiples asignaciones
+# 5. Múltiples asignaciones
 a, b = 1, 2
 
-# 7. Comentarios
-# Este es un comentario
-x = 5  # Comentario inline
+# 6. Operaciones con strings
+mensaje = "Hola" + " " + "Mundo"  # No soportado
+substring = mensaje[0:5]          # No soportado
+
+# 7. Print con múltiples argumentos
+print("Valor:", x)  # Solo print(x) funciona
+
+# Nota: Los comentarios SÍ funcionan y son ignorados correctamente
 ```
 
 ## Comandos de Testing

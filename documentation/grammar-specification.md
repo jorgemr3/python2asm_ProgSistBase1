@@ -13,8 +13,9 @@ La gramática `PythonSubset.g4` define un subconjunto simplificado del lenguaje 
 FOR     : 'for' ;
 IN      : 'in' ;
 WHILE   : 'while' ;
-RANGE   : 'range' ;
-PRINT   : 'print' ;
+IF      : 'if' ;
+ELIF    : 'elif' ;
+ELSE    : 'else' ;
 AND     : 'and' ;
 OR      : 'or' ;
 NOT     : 'not' ;
@@ -104,6 +105,7 @@ expr_stmt
 compound_stmt
     : for_stmt
     | while_stmt
+    | if_stmt
     ;
 ```
 
@@ -135,6 +137,29 @@ while_stmt
 **Características**:
 - Condición: `expression` (debe evaluar a booleano)
 - Cuerpo con indentación: `suite`
+
+### Estructura de Control If/Elif/Else
+
+```antlr
+if_stmt
+    : IF expr ':' NEWLINE INDENT stmt+ DEDENT elif_clause* else_clause?
+    ;
+
+elif_clause
+    : ELIF expr ':' NEWLINE INDENT stmt+ DEDENT
+    ;
+
+else_clause
+    : ELSE ':' NEWLINE INDENT stmt+ DEDENT
+    ;
+```
+
+**Características**:
+- Condición obligatoria en `if`: `expression`
+- Cláusulas `elif` opcionales: Múltiples permitidas
+- Cláusula `else` opcional: Máximo una
+- Cuerpos con indentación: Cada bloque tiene su propio `suite`
+- Evaluación secuencial: Se detiene en la primera condición verdadera
 
 ### Bloques de Código (Suite)
 
@@ -218,14 +243,15 @@ func_call
 ### Correspondencia Reglas → Nodos
 
 | Regla Gramática | Nodo AST | Responsabilidad |
-|-----------------|----------|-----------------|
+|-----------------|----------|------------------|
 | `program` | `ProgNode` | Programa completo |
 | `assign_stmt` | `AssignNode` | Asignaciones |
 | `for_stmt` | `ForNode` | Ciclos for |
 | `while_stmt` | `WhileNode` | Ciclos while |
+| `if_stmt` | `IfNode` | Condicionales if/elif/else |
 | `func_call` | `FuncCallNode` | Llamadas a función |
-| operadores binarios | `BinaryOpNode` | Operaciones +, -, *, /, <, etc. |
-| operadores unarios | `UnaryOpNode` | Operaciones -, not |
+| operadores binarios | `BinaryOpNode` | Operaciones +, -, *, /, <, >, <=, >=, ==, !=, and, or, % |
+| operadores unarios | `UnaryOpNode` | Operaciones -, +, not |
 | `INT` | `IntNode` | Números enteros |
 | `STRING` | `StringNode` | Cadenas de texto |
 | `TRUE`/`FALSE` | `BoolNode` | Valores booleanos |
@@ -258,9 +284,13 @@ public ASTNode visitFor_stmt(PythonSubsetParser.For_stmtContext ctx) {
 
 1. **Modificar gramática**
    ```antlr
-   // Agregar nueva regla
-   if_stmt
-       : IF expression COLON NEWLINE suite (ELSE COLON NEWLINE suite)?
+   // Ejemplo: Agregar definición de funciones
+   func_def
+       : 'def' ID '(' param_list? ')' ':' NEWLINE INDENT stmt+ DEDENT
+       ;
+   
+   param_list
+       : ID (',' ID)*
        ;
    ```
 
@@ -271,18 +301,21 @@ public ASTNode visitFor_stmt(PythonSubsetParser.For_stmtContext ctx) {
 
 3. **Crear nodo AST**
    ```java
-   public class IfNode implements ASTNode {
-       private ASTNode condition;
-       private List<ASTNode> thenBody;
-       private List<ASTNode> elseBody; // opcional
+   public class FuncDefNode implements ASTNode {
+       private String name;
+       private List<String> params;
+       private List<ASTNode> body;
    }
    ```
 
 4. **Implementar visitor**
    ```java
    @Override
-   public ASTNode visitIf_stmt(PythonSubsetParser.If_stmtContext ctx) {
-       // construcción del nodo
+   public ASTNode visitFunc_def(PythonSubsetParser.Func_defContext ctx) {
+       String name = ctx.ID(0).getText();
+       List<String> params = extractParams(ctx.param_list());
+       List<ASTNode> body = visitStatements(ctx.stmt());
+       return new FuncDefNode(name, params, body);
    }
    ```
 
@@ -290,18 +323,24 @@ public ASTNode visitFor_stmt(PythonSubsetParser.For_stmtContext ctx) {
 
 #### No Soportado en la Gramática:
 - **Funciones def**: Sin definición de funciones de usuario
-- **Condicionales if/else**: No implementados
-- **Listas y tuplas**: Solo escalares
+- **Listas y tuplas**: Solo escalares (int, string, bool)
 - **Dictionaries**: No soportados
 - **Import statements**: Sin módulos
 - **Clases**: Programación solo procedimental
-- **Exception handling**: try/catch
+- **Exception handling**: try/except
 - **Decoradores**: @decorator
+- **Comprehensions**: List/dict/set comprehensions
+- **Generators**: yield y funciones generadoras
+- **Lambda**: Funciones lambda anónimas
 
 #### Restricciones Sintácticas:
-- **Indentación fija**: Debe ser consistente
+- **Indentación fija**: Debe ser consistente (4 espacios o tabs)
 - **Un statement por línea**: Sin `;` para múltiples
-- **Strings solo con comillas dobles**: No `'simple'`
+- **Strings**: Comillas dobles `""` o simples `''` soportadas
+- **Range limitado**: Solo `range(stop)` con un argumento
+- **Print con un argumento**: `print(x)`, no `print(x, y)`
+- **Sin asignación compuesta**: No `+=`, `-=`, etc.
+- **Comentarios ignorados**: Permitidos con `#` pero no afectan el AST
 
 ## Ejemplos de Parsing
 
@@ -340,6 +379,40 @@ program
                 ├── statement (print(i))
                 ├── statement (x = i * 2)
                 └── DEDENT
+```
+
+### Condicional If/Elif/Else
+```python
+x = 15
+
+if x > 20:
+    print("Mayor que 20")
+elif x > 10:
+    print("Mayor que 10")
+elif x > 5:
+    print("Mayor que 5")
+else:
+    print("5 o menor")
+```
+
+**Parse Tree**:
+```
+program
+├── statement (assign_stmt: x = 15)
+└── statement
+    └── compound_stmt
+        └── if_stmt
+            ├── IF
+            ├── expr (x > 20)
+            ├── suite (print("Mayor que 20"))
+            ├── elif_clause
+            │   ├── expr (x > 10)
+            │   └── suite (print("Mayor que 10"))
+            ├── elif_clause
+            │   ├── expr (x > 5)
+            │   └── suite (print("Mayor que 5"))
+            └── else_clause
+                └── suite (print("5 o menor"))
 ```
 
 ### Expresión Compleja
