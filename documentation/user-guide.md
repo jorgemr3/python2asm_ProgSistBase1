@@ -13,18 +13,21 @@
 ### Instalación Paso a Paso
 
 1. **Clonar o descargar el proyecto**
+
    ```bash
    git clone <repository-url>
    cd python2asm_ProgSistBase1
    ```
 
 2. **Compilar el proyecto**
+
    ```bash
    # En directorio raíz
    javac -cp "lib/*" src/main/java/**/*.java -d build/
    ```
 
 3. **Verificar instalación**
+
    ```bash
    java -cp "build:lib/*" parser.Main src/test/ejemplo.py
    ```
@@ -40,6 +43,7 @@ java -cp "build:lib/*" parser.Main <archivo_python>
 ### Ejemplos de Uso
 
 #### Ejemplo 1: Programa Simple
+
 ```python
 # archivo: test_simple.py
 x = 10
@@ -48,6 +52,7 @@ print(x + y)
 ```
 
 **Compilación:**
+
 ```bash
 java -cp "build:lib/*" parser.Main test_simple.py
 ```
@@ -55,6 +60,7 @@ java -cp "build:lib/*" parser.Main test_simple.py
 **Resultado:** Genera `ejemplo.asm` en el directorio `build/`
 
 #### Ejemplo 2: Ciclo For
+
 ```python
 # archivo: test_for.py
 for i in range(3):
@@ -63,6 +69,7 @@ print("Fin del ciclo for")
 ```
 
 **Código generado:**
+
 ```asm
 section .data
     ; ... strings literales ...
@@ -72,6 +79,7 @@ section .text
 ```
 
 #### Ejemplo 3: Ciclo While
+
 ```python
 # archivo: test_while.py
 contador = 0
@@ -83,16 +91,19 @@ while contador < 5:
 ### Ejecución del Código Generado
 
 1. **Ensamblar**
+
    ```bash
    nasm -f elf64 build/ejemplo.asm -o build/ejemplo.o
    ```
 
 2. **Enlazar**
+
    ```bash
    gcc build/ejemplo.o -o build/programa -lc
    ```
 
 3. **Ejecutar**
+
    ```bash
    ./build/programa
    ```
@@ -100,6 +111,7 @@ while contador < 5:
 ## Sintaxis Soportada
 
 ### Variables y Asignaciones
+
 ```python
 # Tipos soportados
 x = 42          # Enteros
@@ -112,6 +124,7 @@ variable = expresion
 ```
 
 ### Expresiones Aritméticas
+
 ```python
 # Operadores soportados
 suma = a + b
@@ -124,6 +137,7 @@ resultado = 2 + 3 * 4  # = 14
 ```
 
 ### Expresiones Lógicas
+
 ```python
 # Operadores de comparación
 mayor = a > b
@@ -146,6 +160,7 @@ complejo = not (a == b) and (c != d)
 ### Estructuras de Control
 
 #### Ciclo For
+
 ```python
 # Sintaxis básica
 for variable in range(numero):
@@ -159,6 +174,7 @@ for i in range(10):
 ```
 
 #### Ciclo While
+
 ```python
 # Sintaxis básica
 while condicion:
@@ -173,6 +189,7 @@ while contador < 5:
 ```
 
 #### Condicionales If/Elif/Else
+
 ```python
 # Sintaxis básica
 if condicion:
@@ -205,6 +222,7 @@ else:
 ```
 
 ### Llamadas a Funciones
+
 ```python
 # Función print soportada
 print(variable)
@@ -219,6 +237,7 @@ range(10)     # 0 a 9
 ## Limitaciones Actuales
 
 ### Características No Soportadas
+
 - **Funciones definidas por usuario**: Solo `print()` y `range()` están implementados
 - **Listas y estructuras de datos**: Solo variables escalares (int, string, bool)
 - **Import statements**: Sin soporte para módulos
@@ -229,6 +248,7 @@ range(10)     # 0 a 9
 - **Slicing**: No se pueden hacer operaciones de slicing
 
 ### Restricciones de Sintaxis
+
 - **Indentación**: Debe ser consistente (4 espacios o tabs, no mezclar)
 - **Nombres de variables**: Solo letras, números y underscore (no pueden empezar con número)
 - **Strings**: Comillas dobles o simples (`"texto"` o `'texto'`)
@@ -241,21 +261,27 @@ range(10)     # 0 a 9
 ### Errores Comunes
 
 #### Error de Indentación
+
 ```
 Error: Token recognition error at: '    '
 ```
+
 **Solución**: Verificar que la indentación sea consistente
 
 #### Error de Sintaxis
+
 ```
 Error: mismatched input 'palabra' expecting {...}
 ```
+
 **Solución**: Revisar que la sintaxis coincida con la gramática soportada
 
 #### Error de Compilación Java
+
 ```
 Exception in thread "main" java.lang.ClassNotFoundException
 ```
+
 **Solución**: Verificar el classpath incluya `lib/*` y `build/`
 
 ### Archivos de Prueba Incluidos
@@ -270,14 +296,18 @@ Exception in thread "main" java.lang.ClassNotFoundException
 ### Depuración
 
 #### Habilitar Modo Verbose
+
 Modifica `Main.java` para agregar:
+
 ```java
 System.out.println("AST: " + program.toString());
 System.out.println("Generated ASM saved to: " + outputPath);
 ```
 
 #### Inspeccionar AST Generado
+
 Usa `ASTPrinter` para visualizar el árbol:
+
 ```java
 ASTPrinter printer = new ASTPrinter();
 program.accept(printer);
@@ -286,6 +316,7 @@ program.accept(printer);
 ## Ejemplos Completos
 
 ### Programa de Suma Acumulativa
+
 ```python
 # suma_acumulativa.py
 total = 0
@@ -295,6 +326,7 @@ print(total)
 ```
 
 ### Contador con While
+
 ```python
 # contador.py
 numero = 1
@@ -306,6 +338,7 @@ print("Terminado")
 ```
 
 ### Operaciones Lógicas
+
 ```python
 # logica.py
 a = True
@@ -319,6 +352,7 @@ print(resultado2)  # True
 ## Próximos Pasos
 
 Después de usar exitosamente el compilador:
+
 1. **Examinar código ASM**: Revisar `build/ejemplo.asm` generado
 2. **Ejecutar programa**: Seguir pasos de ensamblado y enlazado
 3. **Experimentar**: Probar diferentes construcciones sintácticas

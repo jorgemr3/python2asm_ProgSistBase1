@@ -2,7 +2,7 @@
 
 ## Índice de Documentación
 
-Esta carpeta contiene la documentación completa del proyecto **Compilador Python a x86_64**. Los documentos están organizados para proporcionar información desde conceptos básicos hasta detalles técnicos avanzados.
+Este archivo contiene la documentación completa del proyecto **Compilador Python a x86_64**. Los documentos están organizados para proporcionar información desde conceptos básicos hasta detalles técnicos avanzados.
 
 ### 📋 **Documentos Disponibles**
 
@@ -17,17 +17,20 @@ Esta carpeta contiene la documentación completa del proyecto **Compilador Pytho
 ### 🎯 **Guía de Lectura Recomendada**
 
 #### **Para Usuarios Nuevos:**
+
 1. Comenzar con **[user-guide.md](user-guide.md)** para instalación y uso básico
 2. Revisar **[examples.md](examples.md)** para ver casos de uso prácticos
 3. Consultar **[architecture.md](architecture.md)** si desea entender el funcionamiento interno
 
 #### **Para Desarrolladores:**
+
 1. Leer **[architecture.md](architecture.md)** para comprender el diseño
 2. Estudiar **[grammar-specification.md](grammar-specification.md)** para entender la gramática
 3. Seguir **[development.md](development.md)** para contribuir al proyecto
 4. Usar **[examples.md](examples.md)** como referencia para testing
 
 #### **Para Estudiantes de Compiladores:**
+
 1. Iniciar con **[grammar-specification.md](grammar-specification.md)** para comprender ANTLR
 2. Continuar con **[architecture.md](architecture.md)** para el patrón AST/Visitor
 3. Experimentar con **[examples.md](examples.md)** para casos prácticos
@@ -38,6 +41,7 @@ Esta carpeta contiene la documentación completa del proyecto **Compilador Pytho
 El **Compilador Python to x86_64** es una implementación educativa que transforma un subconjunto del lenguaje Python en código ensamblador x86_64. El proyecto demuestra los conceptos fundamentales de construcción de compiladores utilizando tecnologías modernas.
 
 #### **Características Principales:**
+
 - ✅ **Sintaxis Python**: Soporte completo para indentación, variables, expresiones
 - ✅ **Estructuras de Control**: Ciclos `for` y `while`, condicionales `if/elif/else`
 - ✅ **Tipos de Datos**: Enteros, strings literales y booleanos
@@ -46,6 +50,7 @@ El **Compilador Python to x86_64** es una implementación educativa que transfor
 - ✅ **Generación ASM**: Código x86_64 optimizado para Linux con gestión de strings
 
 #### **Stack Tecnológico:**
+
 - **ANTLR 4.13.2**: Generación de parsers
 - **Java 8+**: Lenguaje de implementación
 - **x86_64 Assembly**: Target de compilación
@@ -83,11 +88,13 @@ Si desea contribuir al proyecto:
 ### 📚 **Referencias Adicionales**
 
 #### **Documentación Externa:**
+
 - [ANTLR 4 Documentation](https://github.com/antlr/antlr4/blob/master/doc/index.md)
 - [x86_64 Assembly Reference](https://www.felixcloutier.com/x86/)
 - [System V ABI](https://uclibc.org/docs/psABI-x86_64.pdf)
 
 #### **Recursos Académicos:**
+
 - **Compiladores**: "Engineering a Compiler" por Cooper & Torczon
 - **ANTLR**: "The Definitive ANTLR 4 Reference" por Terence Parr
 - **Assembly**: "Programming from the Ground Up" por Jonathan Bartlett
@@ -126,7 +133,12 @@ Este proyecto está desarrollado con fines educativos. Consulte el archivo `LICE
 
 **Versión**: 2.0
 **Fecha**: Noviembre 2025
-**Autor**: Jorge Melo
+**Autores**:
+
+- **Melo Reséndiz Jorge**  
+- **Guerrero Serrano Jafeth Oswaldo**
+- **Paniagua Rico Juan Julián**
+
 **Estado**: Funcional y documentado con características completas de control de flujo
 
 Para información sobre versiones y changelog, ver el historial de commits en el repositorio principal.

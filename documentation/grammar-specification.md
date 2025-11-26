@@ -9,6 +9,7 @@ La gramática `PythonSubset.g4` define un subconjunto simplificado del lenguaje 
 ### Tokens Léxicos
 
 #### Palabras Clave
+
 ```antlr
 FOR     : 'for' ;
 IN      : 'in' ;
@@ -24,6 +25,7 @@ FALSE   : 'False' ;
 ```
 
 #### Operadores
+
 ```antlr
 PLUS    : '+' ;
 MINUS   : '-' ;
@@ -39,6 +41,7 @@ ASSIGN  : '=' ;
 ```
 
 #### Delimitadores
+
 ```antlr
 LPAREN  : '(' ;
 RPAREN  : ')' ;
@@ -47,6 +50,7 @@ COMMA   : ',' ;
 ```
 
 #### Tokens Especiales para Indentación
+
 ```antlr
 INDENT  : 'INDENT' ;   // Generado por preprocesador
 DEDENT  : 'DEDENT' ;   // Generado por preprocesador
@@ -54,6 +58,7 @@ NEWLINE : '\n' ;
 ```
 
 #### Literales e Identificadores
+
 ```antlr
 INT     : [0-9]+ ;
 STRING  : '"' (~["\r\n])* '"' ;
@@ -70,6 +75,7 @@ program
     : statement+ EOF
     ;
 ```
+
 **Propósito**: Define un programa como secuencia de una o más declaraciones.
 
 ### Declaraciones (Statements)
@@ -80,11 +86,14 @@ statement
     | compound_stmt
     ;
 ```
+
 **Tipos soportados**:
+
 - `simple_stmt`: Asignaciones, expresiones, llamadas a función
 - `compound_stmt`: Estructuras de control con bloques
 
 #### Declaraciones Simples
+
 ```antlr
 simple_stmt
     : expr_stmt
@@ -101,6 +110,7 @@ expr_stmt
 ```
 
 #### Declaraciones Compuestas
+
 ```antlr
 compound_stmt
     : for_stmt
@@ -122,6 +132,7 @@ range_call
 ```
 
 **Características**:
+
 - Variable de iteración: `ID`
 - Función range obligatoria: `range(n)`
 - Cuerpo con indentación: `suite`
@@ -135,6 +146,7 @@ while_stmt
 ```
 
 **Características**:
+
 - Condición: `expression` (debe evaluar a booleano)
 - Cuerpo con indentación: `suite`
 
@@ -155,6 +167,7 @@ else_clause
 ```
 
 **Características**:
+
 - Condición obligatoria en `if`: `expression`
 - Cláusulas `elif` opcionales: Múltiples permitidas
 - Cláusula `else` opcional: Máximo una
@@ -170,6 +183,7 @@ suite
 ```
 
 **Manejo de Indentación**:
+
 - `INDENT`: Incremento de nivel de indentación
 - `DEDENT`: Decremento de nivel de indentación
 - Generados por preprocesador en `Main.java`
@@ -177,6 +191,7 @@ suite
 ### Expresiones
 
 #### Jerarquía de Precedencia
+
 ```antlr
 expression
     : logic_or_expr
@@ -213,6 +228,7 @@ unary_expr
 ```
 
 **Precedencia** (mayor a menor):
+
 1. Unarios: `-`, `not`
 2. Multiplicativos: `*`, `/`
 3. Aditivos: `+`, `-`
@@ -222,6 +238,7 @@ unary_expr
 7. OR lógico: `or`
 
 #### Expresiones Primarias
+
 ```antlr
 primary_expr
     : INT
@@ -283,6 +300,7 @@ public ASTNode visitFor_stmt(PythonSubsetParser.For_stmtContext ctx) {
 ### Proceso de Extensión
 
 1. **Modificar gramática**
+
    ```antlr
    // Ejemplo: Agregar definición de funciones
    func_def
@@ -295,11 +313,13 @@ public ASTNode visitFor_stmt(PythonSubsetParser.For_stmtContext ctx) {
    ```
 
 2. **Regenerar parser**
+
    ```bash
    antlr4 grammar/PythonSubset.g4 -o src/main/antlr4/parser/
    ```
 
 3. **Crear nodo AST**
+
    ```java
    public class FuncDefNode implements ASTNode {
        private String name;
@@ -309,6 +329,7 @@ public ASTNode visitFor_stmt(PythonSubsetParser.For_stmtContext ctx) {
    ```
 
 4. **Implementar visitor**
+
    ```java
    @Override
    public ASTNode visitFunc_def(PythonSubsetParser.Func_defContext ctx) {
@@ -321,7 +342,8 @@ public ASTNode visitFor_stmt(PythonSubsetParser.For_stmtContext ctx) {
 
 ### Limitaciones Actuales
 
-#### No Soportado en la Gramática:
+#### No Soportado en la Gramática
+
 - **Funciones def**: Sin definición de funciones de usuario
 - **Listas y tuplas**: Solo escalares (int, string, bool)
 - **Dictionaries**: No soportados
@@ -333,7 +355,8 @@ public ASTNode visitFor_stmt(PythonSubsetParser.For_stmtContext ctx) {
 - **Generators**: yield y funciones generadoras
 - **Lambda**: Funciones lambda anónimas
 
-#### Restricciones Sintácticas:
+#### Restricciones Sintácticas
+
 - **Indentación fija**: Debe ser consistente (4 espacios o tabs)
 - **Un statement por línea**: Sin `;` para múltiples
 - **Strings**: Comillas dobles `""` o simples `''` soportadas
@@ -345,6 +368,7 @@ public ASTNode visitFor_stmt(PythonSubsetParser.For_stmtContext ctx) {
 ## Ejemplos de Parsing
 
 ### Programa Simple
+
 ```python
 x = 10
 y = 20
@@ -352,6 +376,7 @@ print(x + y)
 ```
 
 **Parse Tree Resultante**:
+
 ```
 program
 ├── statement (assign_stmt: x = 10)
@@ -360,6 +385,7 @@ program
 ```
 
 ### Ciclo For
+
 ```python
 for i in range(3):
     print(i)
@@ -367,6 +393,7 @@ for i in range(3):
 ```
 
 **Parse Tree**:
+
 ```
 program
 └── statement
@@ -382,6 +409,7 @@ program
 ```
 
 ### Condicional If/Elif/Else
+
 ```python
 x = 15
 
@@ -396,6 +424,7 @@ else:
 ```
 
 **Parse Tree**:
+
 ```
 program
 ├── statement (assign_stmt: x = 15)
@@ -416,11 +445,13 @@ program
 ```
 
 ### Expresión Compleja
+
 ```python
 resultado = (a + b) * 2 > 10 and not activo
 ```
 
 **Árbol de Expresión**:
+
 ```
 logic_and_expr
 ├── relational_expr
@@ -438,18 +469,21 @@ logic_and_expr
 ## Herramientas de Depuración
 
 ### Visualizar Parse Tree
+
 ```bash
 # Generar diagrama del árbol
 antlr4 PythonSubset.g4 -gui
 ```
 
 ### Probar Lexer
+
 ```bash
 # Ver tokens generados
 antlr4 PythonSubset.g4 -tokens input.py
 ```
 
 ### Validar Gramática
+
 ```bash
 # Verificar sintaxis de gramática
 antlr4 PythonSubset.g4 -Werror

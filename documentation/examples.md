@@ -5,6 +5,7 @@
 ### 1. Variables y Asignaciones
 
 #### Ejemplo Simple
+
 ```python
 # Archivo: basic_variables.py
 x = 42
@@ -17,6 +18,7 @@ print(activo)
 ```
 
 **ASM Generado:**
+
 ```asm
 section .data
 str12345: db "Hola Mundo", 0x0A, 0
@@ -53,6 +55,7 @@ _start:
 ### 2. Expresiones Aritméticas
 
 #### Operaciones Básicas
+
 ```python
 # Archivo: arithmetic.py
 a = 10
@@ -70,6 +73,7 @@ print(division)
 ```
 
 #### Expresiones Complejas
+
 ```python
 # Archivo: complex_expressions.py
 x = 2
@@ -119,6 +123,7 @@ print(negacion)
 ### 4. Ciclos For
 
 #### For Simple
+
 ```python
 # Archivo: simple_for.py
 print("Contando del 0 al 4:")
@@ -128,6 +133,7 @@ print("Fin del conteo")
 ```
 
 **Output Esperado:**
+
 ```
 Contando del 0 al 4:
 0
@@ -139,6 +145,7 @@ Fin del conteo
 ```
 
 #### For con Cálculos
+
 ```python
 # Archivo: for_calculations.py
 suma_total = 0
@@ -156,6 +163,7 @@ print(suma_total)
 ```
 
 #### For con Expresiones
+
 ```python
 # Archivo: for_expressions.py
 print("Tabla del 2:")
@@ -169,6 +177,7 @@ for i in range(1, 6):  # No soportado aún - usar range(5)
 ### 5. Ciclos While
 
 #### While Básico
+
 ```python
 # Archivo: simple_while.py
 contador = 0
@@ -183,6 +192,7 @@ print("Fin del while")
 ```
 
 #### While con Condiciones Complejas
+
 ```python
 # Archivo: complex_while.py
 x = 1
@@ -198,6 +208,7 @@ print(x)
 ```
 
 #### While con Booleanos
+
 ```python
 # Archivo: while_boolean.py
 continuar = True
@@ -216,6 +227,7 @@ while continuar:
 ### 6. Condicionales If/Elif/Else
 
 #### If Simple
+
 ```python
 # Archivo: simple_if.py
 x = 10
@@ -227,12 +239,14 @@ print("Fin del programa")
 ```
 
 **Output Esperado:**
+
 ```
 x es mayor que 5
 Fin del programa
 ```
 
 #### If con Else
+
 ```python
 # Archivo: if_else.py
 edad = 18
@@ -244,6 +258,7 @@ else:
 ```
 
 #### If/Elif/Else Completo
+
 ```python
 # Archivo: if_elif_else.py
 calificacion = 85
@@ -261,6 +276,7 @@ else:
 ```
 
 #### Condicionales Anidados
+
 ```python
 # Archivo: nested_if.py
 x = 15
@@ -279,6 +295,7 @@ else:
 ```
 
 #### If con Expresiones Complejas
+
 ```python
 # Archivo: complex_if.py
 x = 10
@@ -305,6 +322,7 @@ if (x > y) and (z > x) or (y == 0):
 ### 7. Combinando Estructuras
 
 #### For Anidado (Conceptual)
+
 ```python
 # Archivo: nested_loops.py
 # NOTA: Anidamiento no completamente probado
@@ -320,6 +338,7 @@ for i in range(3):
 ```
 
 #### While y For Combinados
+
 ```python
 # Archivo: mixed_loops.py
 print("Ciclos combinados:")
@@ -347,6 +366,7 @@ print("Terminado")
 ### 7. Simulación de Algoritmos
 
 #### Factorial (con While)
+
 ```python
 # Archivo: factorial.py
 numero = 5
@@ -369,6 +389,7 @@ print(factorial)
 ```
 
 #### Fibonacci
+
 ```python
 # Archivo: fibonacci.py
 n = 10
@@ -389,6 +410,7 @@ while contador < n:
 ```
 
 #### Búsqueda Secuencial (Simulada)
+
 ```python
 # Archivo: search_simulation.py
 # Simular búsqueda en "array" de 10 elementos
@@ -422,6 +444,7 @@ if not encontrado:
 ### 9. Validaciones y Testing
 
 #### Testing de Operadores
+
 ```python
 # Archivo: operator_test.py
 print("=== Test de Operadores ===")
@@ -457,6 +480,7 @@ print(a != b)   # True
 ```
 
 #### Testing de Precedencia
+
 ```python
 # Archivo: precedence_test.py
 print("=== Test de Precedencia ===")
@@ -493,6 +517,7 @@ print(resultado4)  # Debería ser True
 ### 10. Casos Límite
 
 #### Números Grandes
+
 ```python
 # Archivo: large_numbers.py
 grande = 1000000
@@ -506,6 +531,7 @@ print(resultado)
 ```
 
 #### Strings con Espacios
+
 ```python
 # Archivo: string_spaces.py
 mensaje1 = "Hola mundo con espacios"
@@ -518,6 +544,7 @@ print(mensaje3)
 ```
 
 #### Booleanos en Expresiones
+
 ```python
 # Archivo: boolean_expressions.py
 verdadero = True
@@ -537,6 +564,7 @@ print(es_verdadero)  # Debería ser True
 ### 11. Características No Soportadas
 
 #### Ejemplos que NO Funcionan
+
 ```python
 # ESTOS EJEMPLOS NO FUNCIONAN AÚN
 
@@ -595,6 +623,7 @@ done
 ### Output Esperado
 
 Cada ejemplo debería:
+
 1. **Compilar sin errores**: No excepciones Java
 2. **Generar ASM válido**: Archivo `build/ejemplo.asm` creado
 3. **Ensamblar correctamente**: NASM sin errores

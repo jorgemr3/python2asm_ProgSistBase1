@@ -28,6 +28,8 @@ Este proyecto implementa un traductor que convierte un subconjunto del lenguaje 
 ## Desarrolladores
 
 - **Melo Reséndiz Jorge**  
+- **Guerrero Serrano Jafeth Oswaldo**
+- **Paniagua Rico Juan Julián**
 
 ---
 

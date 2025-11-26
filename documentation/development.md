@@ -9,17 +9,20 @@ src/
 ├── main/java/
 │   ├── codegen/
 │   │   └── CodeGenerator.java      # Generación de código ASM
-│   └── parser/
-│       ├── ASTBuilder.java         # Construcción del AST
-│       ├── IndentationLexer.java   # Manejo de indentación
-│       ├── Main.java              # Punto de entrada
-│       └── ast/
-│           ├── ASTNode.java       # Interfaz base
-│           ├── ASTVisitor.java    # Patrón Visitor
-│           ├── ASTPrinter.java    # Depuración AST
-│           └── *Node.java         # Nodos específicos
-├── main/antlr4/parser/            # Clases generadas por ANTLR
-└── test/                          # Archivos de prueba Python
+│   ├── parser/
+│   │   ├── ASTBuilder.java         # Construcción del AST
+│   │   ├── Main.java               # Punto de entrada
+│   │   └── ast/
+│   │       ├── ASTNode.java        # Interfaz base
+│   │       ├── ASTVisitor.java     # Patrón Visitor
+│   │       ├── ASTPrinter.java     # Depuración AST
+│   │       └── *Node.java          # Nodos específicos
+│   └── util/
+│       ├── PythonIndentPreprocessor.java  # Manejo de indentación
+│       ├── TreeViewer.java         # Visualizador del parse tree
+│       └── ASTViewer.java          # Visualizador del AST
+├── main/antlr4/parser/             # Clases generadas por ANTLR
+└── test/                           # Archivos de prueba Python
 ```
 
 ### Stack Tecnológico
@@ -35,6 +38,7 @@ src/
 ### Prerrequisitos
 
 1. **JDK 8 o superior**
+
    ```bash
    java -version  # Verificar instalación
    ```
@@ -43,23 +47,26 @@ src/
    - Descargar `antlr-4.13.2-complete.jar`
    - Colocar en directorio `lib/`
 
-3. **Editor recomendado**: VS Code con extensión Java
+3. **Editor recomendado**: VS Code con extensión Java y extension ANTLR4 gramar syntax support
 
 ### Setup del Workspace
 
 1. **Compilar ANTLR Grammar**
+
    ```bash
    cd grammar/
    java -jar ../lib/antlr-4.13.2-complete.jar PythonSubset.g4 -visitor -o ../src/main/antlr4/parser/
    ```
 
 2. **Compilar Proyecto Completo**
+
    ```bash
    # Desde directorio raíz
    javac -cp "lib/*" -d build/ src/main/java/**/*.java src/main/antlr4/parser/*.java
    ```
 
 3. **Verificar Setup**
+
    ```bash
    java -cp "build:lib/*" parser.Main src/test/ejemplo.py
    ```
@@ -256,12 +263,13 @@ gcc build/ejemplo.o -o build/programa
 
 ### Estilo Java
 
-- **Nomenclatura**: 
+- **Nomenclatura**:
   - Clases: `PascalCase`
   - Métodos/variables: `camelCase`
   - Constantes: `UPPER_CASE`
 
 - **Estructura de clases**:
+
   ```java
   public class ExampleNode implements ASTNode {
       // Fields privados

@@ -40,10 +40,11 @@ public class Main {
 
         // 3. Parser
         PythonSubsetParser parser = new PythonSubsetParser(tokens);
+        System.out.println("[INFO] EJECUTAR COMANDO PARA VISUALIZAR ARBOL DE PARSEO EN README.MD\n");
         ParseTree tree = parser.prog();
-        System.out.println("==========[PARSE TREE]==========");
-        System.out.println(tree.toStringTree(parser));
-        System.out.println("================================\n");
+        // System.out.println("==========[PARSE TREE]==========");
+        // System.out.println(tree.toStringTree(parser));
+        // System.out.println("================================\n");
 
         // 4. AST
         ASTBuilder astBuilder = new ASTBuilder();
