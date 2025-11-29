@@ -6,7 +6,7 @@ public class ASTPrinter implements ASTVisitor<Void> {
     private int indent = 0;
 
     private void printIndent() {
-        System.out.print("  ".repeat(indent));
+        System.err.print("  ".repeat(indent));
     }
 
     public void print(ASTNode node) {
@@ -17,7 +17,7 @@ public class ASTPrinter implements ASTVisitor<Void> {
     @Override
     public Void visit(ProgNode node) {
         printIndent();
-        System.out.println("ProgNode");
+        System.err.println("ProgNode");
         indent++;
         for (ASTNode stmt : node.getStatements()) {
             stmt.accept(this);
@@ -29,7 +29,7 @@ public class ASTPrinter implements ASTVisitor<Void> {
     @Override
     public Void visit(AssignNode node) {
         printIndent();
-        System.out.println("AssignNode: " + node.getName());
+        System.err.println("AssignNode: " + node.getName());
         indent++;
         node.getExpr().accept(this);
         indent--;
@@ -39,7 +39,7 @@ public class ASTPrinter implements ASTVisitor<Void> {
     @Override
     public Void visit(ExprStmtNode node) {
         printIndent();
-        System.out.println("ExprStmtNode");
+        System.err.println("ExprStmtNode");
         indent++;
         node.getExpr().accept(this);
         indent--;
@@ -49,7 +49,7 @@ public class ASTPrinter implements ASTVisitor<Void> {
     @Override
     public Void visit(BinaryOpNode node) {
         printIndent();
-        System.out.println("BinaryOpNode: " + node.getOp());
+        System.err.println("BinaryOpNode: " + node.getOp());
         indent++;
         node.getLeft().accept(this);
         node.getRight().accept(this);
@@ -60,7 +60,7 @@ public class ASTPrinter implements ASTVisitor<Void> {
     @Override
     public Void visit(UnaryOpNode node) {
         printIndent();
-        System.out.println("UnaryOpNode: " + node.getOp());
+        System.err.println("UnaryOpNode: " + node.getOp());
         indent++;
         node.getOperand().accept(this);
         indent--;
@@ -70,28 +70,28 @@ public class ASTPrinter implements ASTVisitor<Void> {
     @Override
     public Void visit(IntNode node) {
         printIndent();
-        System.out.println("IntNode: " + node.getValue());
+        System.err.println("IntNode: " + node.getValue());
         return null;
     }
 
     @Override
     public Void visit(BoolNode node) {
         printIndent();
-        System.out.println("BoolNode: " + node.getValue());
+        System.err.println("BoolNode: " + node.getValue());
         return null;
     }
 
     @Override
     public Void visit(VarRefNode node) {
         printIndent();
-        System.out.println("VarRefNode: " + node.getName());
+        System.err.println("VarRefNode: " + node.getName());
         return null;
     }
 
     @Override
     public Void visit(FuncCallNode node) {
         printIndent();
-        System.out.println("FuncCallNode: " + node.getName());
+        System.err.println("FuncCallNode: " + node.getName());
         indent++;
         List<ASTNode> args = node.getArgs();
         for (ASTNode arg : args) {
@@ -104,24 +104,24 @@ public class ASTPrinter implements ASTVisitor<Void> {
     @Override
     public Void visit(StringNode node) {
         printIndent();
-        System.out.println("StringNode: \"" + node.getValue() + "\"");
+        System.err.println("StringNode: \"" + node.getValue() + "\"");
         return null;
     }
 
     @Override
     public Void visit(ForNode node) {
         printIndent();
-        System.out.println("ForNode: variable=" + node.getVariable());
+        System.err.println("ForNode: variable=" + node.getVariable());
         indent++;
         
         printIndent();
-        System.out.println("Iterable:");
+        System.err.println("Iterable:");
         indent++;
         node.getIterable().accept(this);
         indent--;
         
         printIndent();
-        System.out.println("Body:");
+        System.err.println("Body:");
         indent++;
         for (ASTNode stmt : node.getBody()) {
             stmt.accept(this);
@@ -135,17 +135,17 @@ public class ASTPrinter implements ASTVisitor<Void> {
     @Override
     public Void visit(WhileNode node) {
         printIndent();
-        System.out.println("WhileNode:");
+        System.err.println("WhileNode:");
         indent++;
         
         printIndent();
-        System.out.println("Condition:");
+        System.err.println("Condition:");
         indent++;
         node.getCondition().accept(this);
         indent--;
         
         printIndent();
-        System.out.println("Body:");
+        System.err.println("Body:");
         indent++;
         for (ASTNode stmt : node.getBody()) {
             stmt.accept(this);
@@ -159,17 +159,17 @@ public class ASTPrinter implements ASTVisitor<Void> {
     @Override
     public Void visit(IfNode node) {
         printIndent();
-        System.out.println("IfNode:");
+        System.err.println("IfNode:");
         indent++;
         
         printIndent();
-        System.out.println("Condition:");
+        System.err.println("Condition:");
         indent++;
         node.getCondition().accept(this);
         indent--;
         
         printIndent();
-        System.out.println("Then:");
+        System.err.println("Then:");
         indent++;
         for (ASTNode stmt : node.getThenBody()) {
             stmt.accept(this);
@@ -181,17 +181,17 @@ public class ASTPrinter implements ASTVisitor<Void> {
             for (int i = 0; i < node.getElifClauses().size(); i++) {
                 IfNode.ElifClause elifClause = node.getElifClauses().get(i);
                 printIndent();
-                System.out.println("Elif " + (i + 1) + ":");
+                System.err.println("Elif " + (i + 1) + ":");
                 indent++;
                 
                 printIndent();
-                System.out.println("Condition:");
+                System.err.println("Condition:");
                 indent++;
                 elifClause.getCondition().accept(this);
                 indent--;
                 
                 printIndent();
-                System.out.println("Body:");
+                System.err.println("Body:");
                 indent++;
                 for (ASTNode stmt : elifClause.getBody()) {
                     stmt.accept(this);
@@ -205,7 +205,7 @@ public class ASTPrinter implements ASTVisitor<Void> {
         // Imprimir else clause
         if (node.getElseBody() != null) {
             printIndent();
-            System.out.println("Else:");
+            System.err.println("Else:");
             indent++;
             for (ASTNode stmt : node.getElseBody()) {
                 stmt.accept(this);
@@ -220,11 +220,11 @@ public class ASTPrinter implements ASTVisitor<Void> {
     @Override
     public Void visit(RangeNode node) {
         printIndent();
-        System.out.println("RangeNode:");
+        System.err.println("RangeNode:");
         indent++;
         for (int i = 0; i < node.getArgs().size(); i++) {
             printIndent();
-            System.out.println("Arg " + i + ":");
+            System.err.println("Arg " + i + ":");
             indent++;
             node.getArgs().get(i).accept(this);
             indent--;
