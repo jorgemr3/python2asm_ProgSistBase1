@@ -23,10 +23,9 @@ public class Main {
         CharStream input = CharStreams.fromFileName(args[0]);
         System.err.println("[INFO] Lectura de entrada completada.\n");
 
-        ErrorHandler errorHandler = new ErrorHandler(args[0]);
-
         // 2. Preprocesar indentación y dedentación
         String content = input.toString();
+        ErrorHandler errorHandler = new ErrorHandler(args[0], content);
         CharStream processedInput = PythonIndentPreprocessor.preprocess(content, errorHandler);
         if (errorHandler.hasErrors()) {
             errorHandler.printErrors();
