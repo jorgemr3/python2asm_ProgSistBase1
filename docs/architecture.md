@@ -5,7 +5,7 @@
 El compilador está diseñado con una arquitectura de múltiples fases que transforma código Python en ensamblador x86_64 siguiendo el patrón clásico de compiladores:
 
 ```
-Código Python → Lexer → Parser → AST → Generador de Código → ASM x86_64
+Código Python → Lexer → Parser → AST → Analisis Semantico → Generador de Codigo → ASM x86_64
 ```
 
 ## Componentes Principales
@@ -57,7 +57,20 @@ Código Python → Lexer → Parser → AST → Generador de Código → ASM x86
 - **Patrón**: Visitor de ANTLR4
 - **Simplificaciones**: Elimina tokens innecesarios, estructura jerárquica
 
-### 3. **Backend - Generación de Código**
+### 3. **Analisis Semantico**
+
+#### **SemanticAnalyzer**
+
+- **Ubicacion**: `src/main/java/parser/SemanticAnalyzer.java`
+- **Responsabilidad**: Validar tipos y reglas semanticas basicas antes del codegen
+- **Validaciones**:
+  - Registro de tipos por variable
+  - Operaciones binarias y unarias (por ejemplo, `+` solo entre INT)
+  - Comparaciones con tipos compatibles
+  - Uso de `print()` con un solo argumento
+  - `range()` con argumentos enteros
+
+### 4. **Backend - Generacion de Codigo**
 
 #### **CodeGenerator**
 
@@ -103,7 +116,14 @@ Tokens → Parse Tree (estructura ANTLR)
 Parse Tree → ForNode(variable="i", iterable=RangeNode([3]), body=[...])
 ```
 
-### Fase 5: Generación de Código
+### Fase 5: Analisis Semantico
+
+```java
+// SemanticAnalyzer
+// AST -> validacion de tipos y reglas semanticas
+```
+
+### Fase 6: Generacion de Codigo
 
 ```java
 // CodeGenerator.visit(ForNode)

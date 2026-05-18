@@ -48,6 +48,7 @@ El **Compilador Python to x86_64** es una implementación educativa que transfor
 - ✅ **Expresiones**: Aritméticas (+, -, *, /, %, **), lógicas (and, or, not) y comparaciones (==, !=, <, >, <=, >=)
 - ✅ **Operadores Unarios**: Negación aritmética y lógica (-, not, +)
 - ✅ **Generación ASM**: Código x86_64 optimizado para Linux con gestión de strings
+- ✅ **Analisis Semantico**: Validacion basica de tipos y reglas semanticas
 
 #### **Stack Tecnológico:**
 

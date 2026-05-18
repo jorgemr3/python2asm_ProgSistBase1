@@ -73,6 +73,14 @@ public class Main {
             return;
         }
 
+        SemanticAnalyzer analyzer = new SemanticAnalyzer();
+        if (!analyzer.analyze(ast)) {
+            for (String error : analyzer.getErrors()) {
+                System.err.println(error);
+            }
+            return;
+        }
+
         System.err.println("==========[AST IMPRESO]==========");
         ASTPrinter printer = new ASTPrinter();
         printer.print(ast);

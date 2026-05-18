@@ -11,6 +11,7 @@ src/
 │   │   └── CodeGenerator.java      # Generación de código ASM
 │   ├── parser/
 │   │   ├── ASTBuilder.java         # Construcción del AST
+│   │   ├── SemanticAnalyzer.java   # Analisis semantico basico
 │   │   ├── Main.java               # Punto de entrada
 │   │   └── ast/
 │   │       ├── ASTNode.java        # Interfaz base
@@ -72,6 +73,21 @@ src/
    ```
 
 ## Flujo de Desarrollo
+
+### Analisis Semantico Basico
+
+El analisis semantico se ejecuta despues de construir el AST y antes del codegen.
+Se encarga de validar tipos y reglas semanticas minimas para evitar generar ASM invalido.
+
+**Reglas actuales:**
+- Registro de tipos por variable en asignaciones
+- Operaciones aritmeticas solo entre INT
+- Operadores logicos `and`/`or` solo con BOOL
+- Comparaciones con tipos compatibles
+- `print()` solo con un argumento
+- `range()` solo con argumentos enteros
+
+**Ubicacion:** `src/main/java/parser/SemanticAnalyzer.java`
 
 ### Agregar Nuevas Construcciones Sintácticas
 
