@@ -9,8 +9,16 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 
 public class CodeGenerator implements ASTVisitor<Void> {
+    private enum ValueType {
+        INT,
+        BOOL,
+        STRING,
+        UNKNOWN
+    }
+
     private StringBuilder sb = new StringBuilder();
     private Map<String, Integer> varOffsets = new HashMap<>();
+    private Map<String, ValueType> varTypes = new HashMap<>();
     private Map<String, String> stringLiterals = new LinkedHashMap<>(); // Mantiene orden de inserción
     private int nextOffset = 0;
     private int labelCounter = 0;
@@ -26,6 +34,7 @@ public class CodeGenerator implements ASTVisitor<Void> {
         
         // Generar sección .data con todos los strings
         generateDataSection();
+        generateBssSection();
         
         // Generar sección .text
         sb.append("section .text\n");
@@ -40,6 +49,8 @@ public class CodeGenerator implements ASTVisitor<Void> {
         sb.append("    mov rax, 60\n");
         sb.append("    mov rdi, 0\n");
         sb.append("    syscall\n");
+
+        appendPrintRoutines();
         return sb.toString();
     }
     
@@ -111,13 +122,131 @@ public class CodeGenerator implements ASTVisitor<Void> {
     }
     
     private void generateDataSection() {
-        if (!stringLiterals.isEmpty()) {
-            sb.append("section .data\n");
-            for (Map.Entry<String, String> entry : stringLiterals.entrySet()) {
-                sb.append(entry.getKey()).append(": db \"").append(entry.getValue()).append("\", 0x0A, 0\n");
-            }
-            sb.append("\n");
+        sb.append("section .data\n");
+        sb.append("bool_true: db \"True\", 0x0A, 0\n");
+        sb.append("bool_false: db \"False\", 0x0A, 0\n");
+        for (Map.Entry<String, String> entry : stringLiterals.entrySet()) {
+            sb.append(entry.getKey()).append(": db \"").append(entry.getValue()).append("\", 0x0A, 0\n");
         }
+        sb.append("\n");
+    }
+
+    private void generateBssSection() {
+        sb.append("section .bss\n");
+        sb.append("int_buf: resb 32\n\n");
+    }
+
+    private void appendPrintRoutines() {
+        sb.append("\nprint_string:\n");
+        sb.append("    mov rsi, rax\n");
+        sb.append("    xor rdx, rdx\n");
+        sb.append(".print_string_len:\n");
+        sb.append("    cmp byte [rsi + rdx], 0\n");
+        sb.append("    je .print_string_write\n");
+        sb.append("    inc rdx\n");
+        sb.append("    jmp .print_string_len\n");
+        sb.append(".print_string_write:\n");
+        sb.append("    mov rax, 1\n");
+        sb.append("    mov rdi, 1\n");
+        sb.append("    syscall\n");
+        sb.append("    ret\n\n");
+
+        sb.append("print_bool:\n");
+        sb.append("    cmp rax, 0\n");
+        sb.append("    jne .print_bool_true\n");
+        sb.append("    mov rax, bool_false\n");
+        sb.append("    jmp print_string\n");
+        sb.append(".print_bool_true:\n");
+        sb.append("    mov rax, bool_true\n");
+        sb.append("    jmp print_string\n\n");
+
+        sb.append("print_int:\n");
+        sb.append("    push rbx\n");
+        sb.append("    mov rbx, 10\n");
+        sb.append("    lea rdi, [rel int_buf + 31]\n");
+        sb.append("    mov byte [rdi], 0x0A\n");
+        sb.append("    mov rcx, 1\n");
+        sb.append("    xor r8d, r8d\n");
+        sb.append("    cmp rax, 0\n");
+        sb.append("    jne .print_int_check_sign\n");
+        sb.append("    dec rdi\n");
+        sb.append("    mov byte [rdi], '0'\n");
+        sb.append("    inc rcx\n");
+        sb.append("    jmp .print_int_write\n");
+        sb.append(".print_int_check_sign:\n");
+        sb.append("    cmp rax, 0\n");
+        sb.append("    jge .print_int_loop\n");
+        sb.append("    neg rax\n");
+        sb.append("    mov r8b, 1\n");
+        sb.append(".print_int_loop:\n");
+        sb.append("    xor rdx, rdx\n");
+        sb.append("    div rbx\n");
+        sb.append("    add dl, '0'\n");
+        sb.append("    dec rdi\n");
+        sb.append("    mov [rdi], dl\n");
+        sb.append("    inc rcx\n");
+        sb.append("    test rax, rax\n");
+        sb.append("    jnz .print_int_loop\n");
+        sb.append("    cmp r8b, 1\n");
+        sb.append("    jne .print_int_write\n");
+        sb.append("    dec rdi\n");
+        sb.append("    mov byte [rdi], '-'\n");
+        sb.append("    inc rcx\n");
+        sb.append(".print_int_write:\n");
+        sb.append("    mov rax, 1\n");
+        sb.append("    mov rsi, rdi\n");
+        sb.append("    mov rdi, 1\n");
+        sb.append("    mov rdx, rcx\n");
+        sb.append("    syscall\n");
+        sb.append("    pop rbx\n");
+        sb.append("    ret\n");
+    }
+
+    private ValueType inferType(ASTNode node) {
+        if (node instanceof IntNode) {
+            return ValueType.INT;
+        }
+        if (node instanceof BoolNode) {
+            return ValueType.BOOL;
+        }
+        if (node instanceof parser.ast.StringNode) {
+            return ValueType.STRING;
+        }
+        if (node instanceof VarRefNode) {
+            VarRefNode varRef = (VarRefNode) node;
+            return varTypes.getOrDefault(varRef.getName(), ValueType.UNKNOWN);
+        }
+        if (node instanceof UnaryOpNode) {
+            UnaryOpNode unary = (UnaryOpNode) node;
+            String op = unary.getOp();
+            if ("not".equals(op)) {
+                return ValueType.BOOL;
+            }
+            if ("+".equals(op) || "-".equals(op)) {
+                return ValueType.INT;
+            }
+            return ValueType.UNKNOWN;
+        }
+        if (node instanceof BinaryOpNode) {
+            BinaryOpNode bin = (BinaryOpNode) node;
+            String op = bin.getOp();
+            if ("+".equals(op) || "-".equals(op) || "*".equals(op)
+                    || "/".equals(op) || "%".equals(op) || "**".equals(op)) {
+                return ValueType.INT;
+            }
+            if ("==".equals(op) || "!=".equals(op) || ">".equals(op)
+                    || "<".equals(op) || ">=".equals(op) || "<=".equals(op)
+                    || "and".equals(op) || "or".equals(op)) {
+                return ValueType.BOOL;
+            }
+        }
+        if (node instanceof FuncCallNode) {
+            FuncCallNode call = (FuncCallNode) node;
+            if ("print".equals(call.getName())) {
+                return ValueType.INT;
+            }
+        }
+        return ValueType.UNKNOWN;
     }
 
     public Void visit(ProgNode node) {
@@ -129,6 +258,10 @@ public class CodeGenerator implements ASTVisitor<Void> {
 
     public Void visit(AssignNode node) {
         node.getExpr().accept(this);
+        ValueType exprType = inferType(node.getExpr());
+        if (exprType != ValueType.UNKNOWN) {
+            varTypes.put(node.getName(), exprType);
+        }
         varOffsets.computeIfAbsent(node.getName(), k -> nextOffset -= 8);
         int offset = varOffsets.get(node.getName());
         sb.append("    pop rax\n");
@@ -225,8 +358,26 @@ public class CodeGenerator implements ASTVisitor<Void> {
     }
 
     public Void visit(FuncCallNode node) {
-        // placeholder si llegas a usar llamadas
         List<ASTNode> args = node.getArgs();
+        if ("print".equals(node.getName())) {
+            if (args.size() != 1) {
+                throw new RuntimeException("print() solo acepta un argumento");
+            }
+            ASTNode arg = args.get(0);
+            arg.accept(this);
+            ValueType type = inferType(arg);
+            sb.append("    pop rax\n");
+            if (type == ValueType.STRING) {
+                sb.append("    call print_string\n");
+            } else if (type == ValueType.BOOL) {
+                sb.append("    call print_bool\n");
+            } else {
+                sb.append("    call print_int\n");
+            }
+            sb.append("    push 0\n\n");
+            return null;
+        }
+
         for (ASTNode arg : args) {
             arg.accept(this);
         }
@@ -237,8 +388,6 @@ public class CodeGenerator implements ASTVisitor<Void> {
 
     @Override
     public Void visit(parser.ast.StringNode node) {
-        System.out.println("[CodeGen] visit(StringNode): \"" + node.getValue() + "\"");
-        
         // El string ya fue recolectado en la primera pasada
         String label = "str" + Math.abs(node.getValue().hashCode());
         

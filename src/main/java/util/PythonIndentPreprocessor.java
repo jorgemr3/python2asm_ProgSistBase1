@@ -16,6 +16,10 @@ public class PythonIndentPreprocessor {
      * @return CharStream con tokens INDENT/DEDENT insertados
      */
     public static CharStream preprocess(String input) {
+        return preprocess(input, null);
+    }
+
+    public static CharStream preprocess(String input, ErrorHandler errorHandler) {
         String[] lines = input.split("\r?\n");
         StringBuilder result = new StringBuilder();
         
@@ -44,6 +48,15 @@ public class PythonIndentPreprocessor {
                 while (!indentStack.isEmpty() && indentStack.peek() > indentLevel) {
                     indentStack.pop();
                     result.append("DEDENT ");
+                }
+
+                if (!indentStack.isEmpty() && indentStack.peek() != indentLevel) {
+                    if (errorHandler != null) {
+                        errorHandler.reportIndentationError(
+                                i + 1,
+                                1,
+                                "IndentationError: unindent does not match any outer indentation level");
+                    }
                 }
             }
             

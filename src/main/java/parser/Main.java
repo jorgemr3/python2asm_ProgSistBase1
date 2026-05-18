@@ -7,6 +7,7 @@ import parser.ast.ASTNode;
 import parser.ast.ASTPrinter;
 import codegen.CodeGenerator;
 import util.PythonIndentPreprocessor;
+import util.ErrorHandler;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -22,13 +23,21 @@ public class Main {
         CharStream input = CharStreams.fromFileName(args[0]);
         System.err.println("[INFO] Lectura de entrada completada.\n");
 
+        ErrorHandler errorHandler = new ErrorHandler(args[0]);
+
         // 2. Preprocesar indentación y dedentación
         String content = input.toString();
-        CharStream processedInput = PythonIndentPreprocessor.preprocess(content);
+        CharStream processedInput = PythonIndentPreprocessor.preprocess(content, errorHandler);
+        if (errorHandler.hasErrors()) {
+            errorHandler.printErrors();
+            return;
+        }
         System.err.println("[INFO] Preprocesamiento de indentación completado.\n");
         
         // 3. Lexer estándar con contenido preprocesado
         PythonSubsetLexer lexer = new PythonSubsetLexer(processedInput);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(errorHandler);
         System.err.println("[INFO] Lexer creado con contenido preprocesado.\n");
 
         CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -44,8 +53,14 @@ public class Main {
 
         // 3. Parser
         PythonSubsetParser parser = new PythonSubsetParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(errorHandler);
         System.err.println("[INFO] EJECUTAR COMANDO PARA VISUALIZAR ARBOL DE PARSEO EN README.MD\n");
         ParseTree tree = parser.prog();
+        if (errorHandler.hasErrors()) {
+            errorHandler.printErrors();
+            return;
+        }
         // System.out.println("==========[PARSE TREE]==========");
         // System.out.println(tree.toStringTree(parser));
         // System.out.println("================================\n");
@@ -67,9 +82,9 @@ public class Main {
         CodeGenerator codegen = new CodeGenerator();
         String asm = codegen.generate(ast);
 
-        System.out.println("==========[ASM]==========");
+        //System.out.println("==========[ASM]==========");
         System.out.println(asm);
-        System.out.println("=========================\n");
+        //System.out.println("=========================\n");
 
         System.err.println("[INFO] Traduccion completada exitosamente.");
     }

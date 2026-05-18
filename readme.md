@@ -55,8 +55,11 @@ javac -cp lib/antlr-4.13.2-complete.jar -d build `
 Para traducir un archivo `.py` a ensamblador:
 
 ```bash
-java -cp "build;lib/antlr-4.13.2-complete.jar" parser.Main src/test/ejemplo.py > build/ejemplo.asm
+# PowerShell (Windows) - evita redireccion a UTF-16
+java -cp "build;lib/antlr-4.13.2-complete.jar" parser.Main tests/valid/test_logical.py | Set-Content build/ejemplo.asm -Encoding utf8
 ```
+
+Nota (PowerShell): si usas `>` se genera un archivo UTF-16 y NASM puede fallar. Usa `Set-Content -Encoding utf8` como arriba.
 
 Para ejecutar el TreeView para visualizar el árbol de parseo y arbol de sintaxis abstracta en GUI:
 NOTA: Se necesita el proyecto totalmente recompilado con salida generada en la carpeta `build`.
@@ -64,13 +67,13 @@ NOTA: Se necesita el proyecto totalmente recompilado con salida generada en la c
 Arbol de parseo:
 
 ```bash
-java -cp "lib/*;build" util.TreeViewer src/test/ejemplo.py
+java -cp "lib/*;build" util.TreeViewer tests/main.py
 ```
 
 Arbol de sintaxis abstracta:
 
 ```bash
-java -cp "build;lib/*" util.ASTViewer src/test/ejemplo.py
+java -cp "build;lib/*" util.ASTViewer tests/main.py
 ```
 
 ## Documentacion: <https://deepwiki.com/jorgemr3/python2asm_ProgSistBase1>

@@ -40,6 +40,14 @@
 java -cp "build:lib/*" parser.Main <archivo_python>
 ```
 
+**Windows PowerShell (guardar salida en UTF-8):**
+
+```bash
+java -cp "build;lib/antlr-4.13.2-complete.jar" parser.Main <archivo_python> | Set-Content build/ejemplo.asm -Encoding utf8
+```
+
+Nota: en PowerShell, `>` genera salida UTF-16 y puede romper NASM. Usa `Set-Content -Encoding utf8`.
+
 ### Ejemplos de Uso
 
 #### Ejemplo 1: Programa Simple
