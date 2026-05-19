@@ -6,7 +6,7 @@
 
 - **Java**: JDK 8 o superior
 - **ANTLR 4.13.2**: Para regeneración de parsers (opcional)
-- **Sistema Operativo**: Windows/Linux/macOS
+- **Sistema Operativo**: Windows/Linux/macOS para compilar; ejecución del ASM requiere Linux o WSL
 - **Ensamblador**: NASM (para ensamblar el código generado)
 - **Enlazador**: GCC o similar (para crear ejecutables)
 
@@ -28,9 +28,9 @@
 
 3. **Verificar instalación**
 
-   ```bash
-   java -cp "build:lib/*" parser.Main src/test/ejemplo.py
-   ```
+    ```bash
+    java -cp "build:lib/*" parser.Main tests/valid/test_for_sum.py
+    ```
 
 ## Uso del Compilador
 
@@ -139,9 +139,12 @@ suma = a + b
 resta = a - b
 multiplicacion = a * b
 division = a / b
+modulo = a % b
 
 # Precedencia respetada
 resultado = 2 + 3 * 4  # = 14
+
+# La división es entera (idiv)
 ```
 
 ### Expresiones Lógicas
@@ -179,6 +182,10 @@ for variable in range(numero):
 for i in range(10):
     print(i)
     x = i * 2
+
+# También se permite range(start, stop, step) con enteros literales
+for i in range(1, 10, 2):
+    print(i)
 ```
 
 #### Ciclo While
@@ -237,23 +244,27 @@ print(variable)
 print("string literal")
 print(expresion_aritmetica)
 
-# Función range para ciclos for
-range(5)      # 0 a 4
-range(10)     # 0 a 9
+# Otras funciones no están soportadas y generan error semántico
+
+# Función range solo se usa como iterable en for
+for i in range(5):
+    print(i)
 ```
 
 ## Limitaciones Actuales
 
 ### Características No Soportadas
 
-- **Funciones definidas por usuario**: Solo `print()` y `range()` están implementados
+- **Funciones definidas por usuario**: Solo `print()` está soportada
 - **Listas y estructuras de datos**: Solo variables escalares (int, string, bool)
 - **Import statements**: Sin soporte para módulos
-- **Range con argumentos**: Solo soporta `range(stop)`, no `range(start, stop, step)`
+- **Range con argumentos**: Solo se acepta en ciclos `for` y con enteros literales
 - **Tipos float/decimal**: Solo enteros, strings y booleanos
 - **Operaciones sobre strings**: No se pueden concatenar o manipular strings
 - **Asignación compuesta**: No soporta `+=`, `-=`, `*=`, etc.
 - **Slicing**: No se pueden hacer operaciones de slicing
+- **Potencia `**`**: Está parseada, pero la generación de ASM no la implementa
+- **Lógicos**: `and`/`or` evalúan ambos operandos (sin short-circuit)
 
 ### Restricciones de Sintaxis
 
@@ -262,7 +273,7 @@ range(10)     # 0 a 9
 - **Strings**: Comillas dobles o simples (`"texto"` o `'texto'`)
 - **Comentarios**: Soportados con `#` pero son ignorados por el compilador
 - **Print**: Solo acepta un argumento a la vez
-- **Range**: Solo acepta la forma `range(stop)` con un único argumento
+- **Range**: Solo acepta 1, 2 o 3 enteros literales en ciclos `for`
 
 ## Solución de Problemas
 
@@ -292,14 +303,30 @@ Exception in thread "main" java.lang.ClassNotFoundException
 
 **Solución**: Verificar el classpath incluya `lib/*` y `build/`
 
+#### Error Semántico
+
+```
+[SEMANTIC] Variable no definida: y
+```
+
+**Solución**: Revisar variables no declaradas o tipos incompatibles
+
 ### Archivos de Prueba Incluidos
 
 | Archivo | Propósito | Descripción |
 |---------|-----------|-------------|
-| `src/test/ejemplo.py` | Prueba básica | Ciclo for simple |
-| `src/test/test_while.py` | Ciclos while | Múltiples ejemplos de while |
-| `src/test/test_for.py` | Ciclos for | Variaciones de for |
-| `src/test/test_logical.py` | Operadores lógicos | And, or, not |
+| `tests/valid/test_for_sum.py` | Prueba básica | Suma en for con range |
+| `tests/valid/test_if.py` | Condicionales | If simple |
+| `tests/valid/test_if_elif.py` | Condicionales | If/elif/else |
+| `tests/valid/test_logical.py` | Operadores lógicos | and, or, not |
+| `tests/valid/test_while_indent.py` | Ciclo while | While con indentación |
+| `tests/invalid/semantic_undefined_var.py` | Error semántico | Variable no definida |
+
+Para ejecutar todos los tests:
+
+```bash
+python tests/test_runner.py
+```
 
 ### Depuración
 

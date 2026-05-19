@@ -45,9 +45,10 @@ El **Compilador Python to x86_64** es una implementación educativa que transfor
 - ✅ **Sintaxis Python**: Soporte completo para indentación, variables, expresiones
 - ✅ **Estructuras de Control**: Ciclos `for` y `while`, condicionales `if/elif/else`
 - ✅ **Tipos de Datos**: Enteros, strings literales y booleanos
-- ✅ **Expresiones**: Aritméticas (+, -, *, /, %, **), lógicas (and, or, not) y comparaciones (==, !=, <, >, <=, >=)
+- ✅ **Expresiones**: Aritméticas (+, -, *, /, %), lógicas (and, or, not) y comparaciones (==, !=, <, >, <=, >=)
 - ✅ **Operadores Unarios**: Negación aritmética y lógica (-, not, +)
-- ✅ **Generación ASM**: Código x86_64 optimizado para Linux con gestión de strings
+- ✅ **Range**: Soporte de `range(stop)`, `range(start, stop)` y `range(start, stop, step)` con literales
+- ✅ **Generación ASM**: Código x86_64 para Linux con gestión de strings
 - ✅ **Analisis Semantico**: Validacion basica de tipos y reglas semanticas
 
 #### **Stack Tecnológico:**
@@ -60,13 +61,13 @@ El **Compilador Python to x86_64** es una implementación educativa que transfor
 ### 📁 **Estructura de Documentación**
 
 ```
-documentation/
+docs/
 ├── README.md                    # Este archivo - índice general
-├── architecture.md              # Diseño y componentes del sistema  
-├── user-guide.md               # Manual de usuario e instalación
+├── architecture.md              # Diseño y componentes del sistema
+├── user-guide.md                # Manual de usuario e instalación
 ├── grammar-specification.md     # Especificación completa de gramática ANTLR
-├── development.md              # Guía de desarrollo y contribución
-└── examples.md                 # Ejemplos de código y casos de uso
+├── development.md               # Guía de desarrollo y contribución
+└── examples.md                  # Ejemplos de código y casos de uso
 ```
 
 ### 🚀 **Quick Start**
@@ -128,12 +129,14 @@ Este proyecto está desarrollado con fines educativos. Consulte el archivo `LICE
 | **Features Pendientes** |
 | Functions | ⏳ Pendiente | Funciones definidas por usuario |
 | Arrays/Lists | ⏳ Pendiente | Estructuras de datos |
-| Range Args | ⏳ Pendiente | range(start, stop, step) completo |
+| Range Args | ✅ Completo | Requiere literales enteros |
+| Potencia `**` | ⏳ Pendiente | ASM aún no implementa exponentiación |
+| Short-circuit lógico | ⏳ Pendiente | `and`/`or` evalúan ambos operandos |
 
 ### 🔄 **Última Actualización**
 
 **Versión**: 2.0
-**Fecha**: Noviembre 2025
+**Fecha**: Mayo 2026
 **Autores**:
 
 - **Melo Reséndiz Jorge**  

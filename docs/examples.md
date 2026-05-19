@@ -167,7 +167,7 @@ print(suma_total)
 ```python
 # Archivo: for_expressions.py
 print("Tabla del 2:")
-for i in range(1, 6):  # No soportado aún - usar range(5)
+for i in range(1, 6):  # Soportado si los argumentos son literales
     resultado = i * 2
     print(i)
     print(" * 2 = ")
@@ -550,10 +550,17 @@ print(mensaje3)
 verdadero = True
 falso = False
 
-# Booleanos como números (0 y 1)
-suma_bool = verdadero + falso
-print("True + False =")
-print(suma_bool)  # Debería ser 1
+# Operaciones lógicas
+resultado_and = verdadero and falso
+resultado_or = verdadero or falso
+resultado_not = not falso
+
+print("True and False =")
+print(resultado_and)  # Debería ser False
+print("True or False =")
+print(resultado_or)   # Debería ser True
+print("not False =")
+print(resultado_not)  # Debería ser True
 
 # En comparaciones
 es_verdadero = verdadero == True
@@ -574,22 +581,26 @@ print(es_verdadero)  # Debería ser True
 # 2. Listas
 mi_lista = [1, 2, 3, 4, 5]
 
-# 3. Range con múltiples parámetros
-for i in range(1, 10, 2):  # Solo range(stop) funciona
+# 3. Range con argumentos no literales
+limite = 10
+for i in range(1, limite, 2):  # Requiere literales en la implementación actual
     print(i)
 
-# 4. Asignación compuesta
+# 4. Potencia
+resultado = 2 ** 3  # La gramática la acepta, pero el ASM no la implementa
+
+# 5. Asignación compuesta
 x += 5
 y *= 2
 
-# 5. Múltiples asignaciones
+# 6. Múltiples asignaciones
 a, b = 1, 2
 
-# 6. Operaciones con strings
+# 7. Operaciones con strings
 mensaje = "Hola" + " " + "Mundo"  # No soportado
 substring = mensaje[0:5]          # No soportado
 
-# 7. Print con múltiples argumentos
+# 8. Print con múltiples argumentos
 print("Valor:", x)  # Solo print(x) funciona
 
 # Nota: Los comentarios SÍ funcionan y son ignorados correctamente
@@ -601,7 +612,7 @@ print("Valor:", x)  # Solo print(x) funciona
 
 ```bash
 # Compilar un ejemplo
-java -cp "build:lib/*" parser.Main src/test/ejemplo.py
+java -cp "build:lib/*" parser.Main tests/valid/test_for_sum.py
 
 # Ensamblar y ejecutar
 nasm -f elf64 build/ejemplo.asm -o build/ejemplo.o
@@ -609,7 +620,7 @@ gcc build/ejemplo.o -o build/programa
 ./build/programa
 
 # Testing batch (todos los ejemplos)
-for file in src/test/*.py; do
+for file in tests/valid/*.py; do
     echo "Testing $file"
     java -cp "build:lib/*" parser.Main "$file"
     if [ $? -eq 0 ]; then
@@ -618,6 +629,9 @@ for file in src/test/*.py; do
         echo "✗ Error en compilación"
     fi
 done
+
+# Tests automatizados (valid/invalid)
+python tests/test_runner.py
 ```
 
 ### Output Esperado

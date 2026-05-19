@@ -12,11 +12,11 @@ La gramática `PythonSubset.g4` define un subconjunto simplificado del lenguaje 
 
 ```antlr
 FOR     : 'for' ;
-IN      : 'in' ;
 WHILE   : 'while' ;
 IF      : 'if' ;
 ELIF    : 'elif' ;
 ELSE    : 'else' ;
+IN      : 'in' ;
 AND     : 'and' ;
 OR      : 'or' ;
 NOT     : 'not' ;
@@ -24,46 +24,50 @@ TRUE    : 'True' ;
 FALSE   : 'False' ;
 ```
 
-#### Operadores
-
-```antlr
-PLUS    : '+' ;
-MINUS   : '-' ;
-MULT    : '*' ;
-DIV     : '/' ;
-EQ      : '==' ;
-NEQ     : '!=' ;
-LT      : '<' ;
-GT      : '>' ;
-LE      : '<=' ;
-GE      : '>=' ;
-ASSIGN  : '=' ;
-```
-
-#### Delimitadores
-
-```antlr
-LPAREN  : '(' ;
-RPAREN  : ')' ;
-COLON   : ':' ;
-COMMA   : ',' ;
-```
-
 #### Tokens Especiales para Indentación
 
 ```antlr
 INDENT  : 'INDENT' ;   // Generado por preprocesador
 DEDENT  : 'DEDENT' ;   // Generado por preprocesador
-NEWLINE : '\n' ;
 ```
 
 #### Literales e Identificadores
 
 ```antlr
-INT     : [0-9]+ ;
-STRING  : '"' (~["\r\n])* '"' ;
-ID      : [a-zA-Z_][a-zA-Z_0-9]* ;
-WS      : [ \t\r]+ -> skip ;
+IDENTIFIER
+    : [a-zA-Z_] [a-zA-Z_0-9]*
+    ;
+
+INT
+    : [0-9]+
+    ;
+
+STRING
+    : '"' (~["\r\n])* '"'
+    | '\'' (~['\r\n])* '\''
+    ;
+
+NEWLINE
+    : ( '\r'? '\n' )+
+    ;
+
+WS
+    : [ \t]+ -> skip
+    ;
+
+COMMENT
+    : '#' ~[\r\n]* -> skip
+    ;
+```
+
+#### Operadores y Delimitadores
+
+Estos símbolos se manejan como literales en las reglas del parser:
+
+```
++  -  *  /  %  **
+==  !=  <  >  <=  >=
+=   (  )  ,  :
 ```
 
 ## Reglas de Producción
@@ -71,8 +75,8 @@ WS      : [ \t\r]+ -> skip ;
 ### Estructura Principal
 
 ```antlr
-program
-    : statement+ EOF
+prog
+    : stmt+ EOF
     ;
 ```
 
@@ -81,9 +85,10 @@ program
 ### Declaraciones (Statements)
 
 ```antlr
-statement
+stmt
     : simple_stmt NEWLINE
     | compound_stmt
+    | NEWLINE
     ;
 ```
 
@@ -96,16 +101,16 @@ statement
 
 ```antlr
 simple_stmt
-    : expr_stmt
-    | assign_stmt
+    : assign_stmt
+    | expr_stmt
     ;
 
 assign_stmt
-    : ID ASSIGN expression
+    : IDENTIFIER '=' expr
     ;
 
 expr_stmt
-    : expression
+    : expr
     ;
 ```
 
@@ -123,32 +128,43 @@ compound_stmt
 
 ```antlr
 for_stmt
-    : FOR ID IN range_call COLON NEWLINE suite
+    : FOR IDENTIFIER IN iterable ':' NEWLINE INDENT stmt+ DEDENT
+    ;
+
+iterable
+    : range_call
+    | expr
     ;
 
 range_call
-    : RANGE LPAREN expression RPAREN
+    : 'range' '(' range_args ')'
+    ;
+
+range_args
+    : expr
+    | expr ',' expr
+    | expr ',' expr ',' expr
     ;
 ```
 
 **Características**:
 
-- Variable de iteración: `ID`
-- Función range obligatoria: `range(n)`
-- Cuerpo con indentación: `suite`
+- Variable de iteración: `IDENTIFIER`
+- Función range recomendada: `range(stop)`, `range(start, stop)` o `range(start, stop, step)`
+- Cuerpo con indentación: `INDENT stmt+ DEDENT`
 
 ### Estructura de Control While
 
 ```antlr
 while_stmt
-    : WHILE expression COLON NEWLINE suite
+    : WHILE expr ':' NEWLINE INDENT stmt+ DEDENT
     ;
 ```
 
 **Características**:
 
-- Condición: `expression` (debe evaluar a booleano)
-- Cuerpo con indentación: `suite`
+- Condición: `expr` (debe evaluar a BOOL o INT)
+- Cuerpo con indentación: `INDENT stmt+ DEDENT`
 
 ### Estructura de Control If/Elif/Else
 
@@ -171,89 +187,83 @@ else_clause
 - Condición obligatoria en `if`: `expression`
 - Cláusulas `elif` opcionales: Múltiples permitidas
 - Cláusula `else` opcional: Máximo una
-- Cuerpos con indentación: Cada bloque tiene su propio `suite`
+- Cuerpos con indentación: Cada bloque usa `INDENT stmt+ DEDENT`
 - Evaluación secuencial: Se detiene en la primera condición verdadera
 
-### Bloques de Código (Suite)
+### Bloques de Código (Indentación)
+
+Los bloques se representan directamente en cada sentencia compuesta con la forma:
 
 ```antlr
-suite
-    : INDENT statement+ DEDENT
-    ;
+INDENT stmt+ DEDENT
 ```
 
 **Manejo de Indentación**:
 
 - `INDENT`: Incremento de nivel de indentación
 - `DEDENT`: Decremento de nivel de indentación
-- Generados por preprocesador en `Main.java`
+- Generados por el preprocesador en `PythonIndentPreprocessor`
 
 ### Expresiones
 
 #### Jerarquía de Precedencia
 
 ```antlr
-expression
-    : logic_or_expr
+expr
+    : expr OR expr                         # LogicalOr
+    | expr AND expr                        # LogicalAnd
+    | comparison                           # ComparisonExpr
     ;
 
-logic_or_expr
-    : logic_and_expr (OR logic_and_expr)*
+comparison
+    : arith_expr (comp=('==' | '!=' | '>=' | '<=' | '>' | '<') arith_expr)?
     ;
 
-logic_and_expr
-    : equality_expr (AND equality_expr)*
-    ;
-
-equality_expr
-    : relational_expr ((EQ | NEQ) relational_expr)*
-    ;
-
-relational_expr
-    : additive_expr ((LT | GT | LE | GE) additive_expr)*
-    ;
-
-additive_expr
-    : multiplicative_expr ((PLUS | MINUS) multiplicative_expr)*
-    ;
-
-multiplicative_expr
-    : unary_expr ((MULT | DIV) unary_expr)*
+arith_expr
+    : arith_expr op=('+' | '-') arith_expr # AddSub
+    | arith_expr op=('*' | '/' | '%') arith_expr # MulDivMod
+    | unary_expr                           # ArithUnary
     ;
 
 unary_expr
-    : (MINUS | NOT) unary_expr
-    | primary_expr
+    : NOT unary_expr                       # LogicalNot
+    | ('+' | '-') unary_expr               # UnaryOp
+    | power_expr                           # PowerBase
+    ;
+
+power_expr
+    : atom_expr ('**' unary_expr)?         # Power
+    ;
+
+atom_expr
+    : IDENTIFIER '(' arg_list? ')'         # FuncCall
+    | '(' expr ')'                         # Parens
+    | INT                                  # IntLiteral
+    | STRING                               # StringLiteral
+    | TRUE                                 # TrueLiteral
+    | FALSE                                # FalseLiteral
+    | IDENTIFIER                           # VarRef
+    ;
+
+arg_list
+    : expr (',' expr)*
     ;
 ```
 
 **Precedencia** (mayor a menor):
 
-1. Unarios: `-`, `not`
-2. Multiplicativos: `*`, `/`
-3. Aditivos: `+`, `-`
-4. Relacionales: `<`, `>`, `<=`, `>=`
-5. Igualdad: `==`, `!=`
-6. AND lógico: `and`
-7. OR lógico: `or`
+1. Potencia: `**` (asociatividad derecha, un solo nivel)
+2. Unarios: `+`, `-`, `not`
+3. Multiplicativos: `*`, `/`, `%`
+4. Aditivos: `+`, `-`
+5. Relacionales: `<`, `>`, `<=`, `>=`
+6. Igualdad: `==`, `!=`
+7. AND lógico: `and`
+8. OR lógico: `or`
 
 #### Expresiones Primarias
 
-```antlr
-primary_expr
-    : INT
-    | STRING
-    | TRUE
-    | FALSE
-    | ID
-    | func_call
-    | LPAREN expression RPAREN
-    ;
-
-func_call
-    : ID LPAREN (expression (COMMA expression)*)? RPAREN
-    ;
-```
+Las expresiones atómicas están incluidas en `atom_expr` (ver regla anterior).
 
 ## Mapeo AST
 
@@ -261,18 +271,19 @@ func_call
 
 | Regla Gramática | Nodo AST | Responsabilidad |
 |-----------------|----------|------------------|
-| `program` | `ProgNode` | Programa completo |
+| `prog` | `ProgNode` | Programa completo |
 | `assign_stmt` | `AssignNode` | Asignaciones |
+| `expr_stmt` | `ExprStmtNode` | Expresiones como sentencia |
 | `for_stmt` | `ForNode` | Ciclos for |
 | `while_stmt` | `WhileNode` | Ciclos while |
 | `if_stmt` | `IfNode` | Condicionales if/elif/else |
 | `func_call` | `FuncCallNode` | Llamadas a función |
-| operadores binarios | `BinaryOpNode` | Operaciones +, -, *, /, <, >, <=, >=, ==, !=, and, or, % |
-| operadores unarios | `UnaryOpNode` | Operaciones -, +, not |
+| operadores binarios | `BinaryOpNode` | Operaciones +, -, *, /, %, **, <, >, <=, >=, ==, !=, and, or |
+| operadores unarios | `UnaryOpNode` | Operaciones +, -, not |
 | `INT` | `IntNode` | Números enteros |
 | `STRING` | `StringNode` | Cadenas de texto |
 | `TRUE`/`FALSE` | `BoolNode` | Valores booleanos |
-| `ID` | `VarRefNode` | Referencias a variables |
+| `IDENTIFIER` | `VarRefNode` | Referencias a variables |
 | `range_call` | `RangeNode` | Función range() |
 
 ### Construcción del AST
@@ -283,11 +294,11 @@ El `ASTBuilder` implementa el patrón Visitor de ANTLR para transformar el parse
 // Ejemplo: visitFor_stmt()
 @Override
 public ASTNode visitFor_stmt(PythonSubsetParser.For_stmtContext ctx) {
-    String variable = ctx.ID().getText();
-    RangeNode iterable = (RangeNode) visit(ctx.range_call());
+    String variable = ctx.IDENTIFIER().getText();
+    RangeNode iterable = (RangeNode) visit(ctx.iterable());
     List<ASTNode> body = new ArrayList<>();
     
-    for (PythonSubsetParser.StatementContext stmt : ctx.suite().statement()) {
+    for (PythonSubsetParser.StmtContext stmt : ctx.stmt()) {
         body.add(visit(stmt));
     }
     
@@ -304,11 +315,11 @@ public ASTNode visitFor_stmt(PythonSubsetParser.For_stmtContext ctx) {
    ```antlr
    // Ejemplo: Agregar definición de funciones
    func_def
-       : 'def' ID '(' param_list? ')' ':' NEWLINE INDENT stmt+ DEDENT
+       : 'def' IDENTIFIER '(' param_list? ')' ':' NEWLINE INDENT stmt+ DEDENT
        ;
    
    param_list
-       : ID (',' ID)*
+       : IDENTIFIER (',' IDENTIFIER)*
        ;
    ```
 
@@ -333,7 +344,7 @@ public ASTNode visitFor_stmt(PythonSubsetParser.For_stmtContext ctx) {
    ```java
    @Override
    public ASTNode visitFunc_def(PythonSubsetParser.Func_defContext ctx) {
-       String name = ctx.ID(0).getText();
+       String name = ctx.IDENTIFIER(0).getText();
        List<String> params = extractParams(ctx.param_list());
        List<ASTNode> body = visitStatements(ctx.stmt());
        return new FuncDefNode(name, params, body);
@@ -360,8 +371,9 @@ public ASTNode visitFor_stmt(PythonSubsetParser.For_stmtContext ctx) {
 - **Indentación fija**: Debe ser consistente (4 espacios o tabs)
 - **Un statement por línea**: Sin `;` para múltiples
 - **Strings**: Comillas dobles `""` o simples `''` soportadas
-- **Range limitado**: Solo `range(stop)` con un argumento
+- **Range**: Sintaxis con 1, 2 o 3 argumentos; en la implementacion actual deben ser enteros literales
 - **Print con un argumento**: `print(x)`, no `print(x, y)`
+- **Potencia `**`**: Está en la gramática, pero la generación de código aún no la implementa
 - **Sin asignación compuesta**: No `+=`, `-=`, etc.
 - **Comentarios ignorados**: Permitidos con `#` pero no afectan el AST
 
@@ -378,10 +390,10 @@ print(x + y)
 **Parse Tree Resultante**:
 
 ```
-program
-├── statement (assign_stmt: x = 10)
-├── statement (assign_stmt: y = 20)
-└── statement (expr_stmt: print(x + y))
+prog
+├── stmt (assign_stmt: x = 10)
+├── stmt (assign_stmt: y = 20)
+└── stmt (expr_stmt: print(x + y))
 ```
 
 ### Ciclo For
@@ -395,17 +407,16 @@ for i in range(3):
 **Parse Tree**:
 
 ```
-program
-└── statement
+prog
+└── stmt
     └── compound_stmt
         └── for_stmt
-            ├── ID: i
-            ├── range_call: range(3)
-            └── suite
-                ├── INDENT
-                ├── statement (print(i))
-                ├── statement (x = i * 2)
-                └── DEDENT
+            ├── IDENTIFIER: i
+            ├── iterable: range(3)
+            ├── INDENT
+            ├── stmt (print(i))
+            ├── stmt (x = i * 2)
+            └── DEDENT
 ```
 
 ### Condicional If/Elif/Else
@@ -426,22 +437,16 @@ else:
 **Parse Tree**:
 
 ```
-program
-├── statement (assign_stmt: x = 15)
-└── statement
+prog
+├── stmt (assign_stmt: x = 15)
+└── stmt
     └── compound_stmt
         └── if_stmt
-            ├── IF
             ├── expr (x > 20)
-            ├── suite (print("Mayor que 20"))
-            ├── elif_clause
-            │   ├── expr (x > 10)
-            │   └── suite (print("Mayor que 10"))
-            ├── elif_clause
-            │   ├── expr (x > 5)
-            │   └── suite (print("Mayor que 5"))
-            └── else_clause
-                └── suite (print("5 o menor"))
+            ├── INDENT ... DEDENT
+            ├── elif_clause (x > 10) -> INDENT ... DEDENT
+            ├── elif_clause (x > 5) -> INDENT ... DEDENT
+            └── else_clause -> INDENT ... DEDENT
 ```
 
 ### Expresión Compleja
@@ -453,17 +458,9 @@ resultado = (a + b) * 2 > 10 and not activo
 **Árbol de Expresión**:
 
 ```
-logic_and_expr
-├── relational_expr
-│   ├── multiplicative_expr
-│   │   ├── additive_expr (a + b)
-│   │   └── INT: 2
-│   └── GT
-│   └── INT: 10
-├── AND
-└── unary_expr
-    ├── NOT
-    └── ID: activo
+expr (LogicalAnd)
+├── comparison ((a + b) * 2 > 10)
+└── unary_expr (not activo)
 ```
 
 ## Herramientas de Depuración

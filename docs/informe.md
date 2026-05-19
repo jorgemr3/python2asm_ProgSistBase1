@@ -35,8 +35,8 @@ Construir un compilador/traductor que procese un subconjunto de Python y genere 
 - Programa: una o mas sentencias.
 - Sentencias simples: asignacion y expresiones como sentencia.
 - Sentencias compuestas: `if/elif/else`, `while`, `for`.
-- Expresiones: aritmeticas, comparaciones, logicas, unarias y potencia.
-- Llamadas a funciones: `identificador(expr, ...)` (en la practica se usa `print`).
+- Expresiones: aritmeticas, comparaciones, logicas, unarias y potencia (con limitaciones en codegen).
+- Llamadas a funciones: `identificador(expr, ...)` (solo `print` esta soportada en el analisis semantico).
 - Iteracion: `for` con `range()`.
 
 Limitaciones actuales relevantes:
@@ -44,6 +44,7 @@ Limitaciones actuales relevantes:
 - `range()` se parsea con 1, 2 o 3 argumentos, pero la generacion de codigo asume argumentos enteros literales.
 - No hay definicion de funciones de usuario ni estructuras complejas (listas, diccionarios, etc.).
 - Sin tipos flotantes ni asignacion compuesta.
+- `**` esta en la gramatica, pero la generacion de ASM aun no lo implementa.
 
 ## 4. Arquitectura del Compilador
 
@@ -51,8 +52,9 @@ La arquitectura se organiza en fases:
 
 1. **Preprocesamiento**: convierte indentacion en `INDENT`/`DEDENT`.
 2. **Lexer/Parser (ANTLR4)**: tokeniza y produce el parse tree.
-3. **AST**: `ASTBuilder` transforma el parse tree en un AST con nodos como `ProgNode`, `AssignNode`, `IfNode`, `ForNode`, `WhileNode` y `BinaryOpNode`.
-4. **Codegen**: `CodeGenerator` recorre el AST con Visitor y genera ASM x86_64.
+3. **AST**: `ASTBuilder` transforma el parse tree en un AST con nodos como `ProgNode`, `AssignNode`, `ExprStmtNode`, `IfNode`, `ForNode`, `WhileNode` y `BinaryOpNode`.
+4. **Analisis Semantico**: `SemanticAnalyzer` valida tipos y reglas basicas.
+5. **Codegen**: `CodeGenerator` recorre el AST con Visitor y genera ASM x86_64.
 
 El backend usa una evaluacion basada en pila, almacena variables en offsets relativos a `rbp` y emite etiquetas para control de flujo.
 
@@ -66,11 +68,15 @@ El backend usa una evaluacion basada en pila, almacena variables en offsets rela
 
 ### 5.2 Analisis Semantico y Tabla de Simbolos
 
-No existe una fase separada de analisis semantico. En su lugar:
+Se incluye una fase de analisis semantico previa al codegen (`SemanticAnalyzer`):
 
-- El `CodeGenerator` mantiene un mapa `varOffsets` como tabla de simbolos minima (variable -> offset en stack).
-- Se detectan variables no definidas al generar codigo (`RuntimeException`).
-- No hay verificacion completa de tipos; se asume compatibilidad entre operandos.
+- Registra variables definidas y tipos inferidos.
+- Valida operaciones aritmeticas con INT, logicas con BOOL y comparaciones compatibles.
+- Acepta condiciones BOOL o INT en `if`/`while`.
+- Restringe `range()` a enteros literales (1 a 3 argumentos).
+- Solo permite `print()` con un argumento y rechaza otras funciones.
+
+El `CodeGenerator` mantiene `varOffsets` para ubicar variables en el stack durante la generacion de ASM.
 
 ### 5.3 Interprete / Generacion de Codigo
 
@@ -83,15 +89,16 @@ No existe una fase separada de analisis semantico. En su lugar:
 
 El manejo de errores es basico y no unificado:
 
-- ANTLR reporta errores sintacticos con mensajes estandar.
-- `Main` imprime mensajes informativos a `stderr`.
+- ANTLR reporta errores lexicos/sintacticos con mensajes estandar.
+- `PythonIndentPreprocessor` detecta errores de indentacion.
+- `SemanticAnalyzer` reporta errores de tipos/uso con prefijo `[SEMANTIC]`.
 - `CodeGenerator` lanza excepciones en casos como variable no definida o iterable no soportado.
 
 ## 6. Demostracion Funcional
 
 ### 6.1 Ejecucion con programa valido completo
 
-Ejemplo (archivo `src/test/ejemplo.py`):
+Ejemplo (archivo `tests/valid/test_if_elif.py`):
 
 ```python
 x = 10
@@ -111,7 +118,7 @@ if z == 15:
 Compilacion (Windows):
 
 ```bash
-java -cp "build;lib/antlr-4.13.2-complete.jar" parser.Main src/test/ejemplo.py > build/ejemplo.asm
+java -cp "build;lib/antlr-4.13.2-complete.jar" parser.Main tests/valid/test_if_elif.py > build/ejemplo.asm
 ```
 
 ### 6.2 Errores sintacticos detectados
@@ -133,7 +140,7 @@ Ejemplo de variable no definida:
 print(y)
 ```
 
-Durante la generacion de codigo se lanza un error del tipo `Variable no definida: y`. No existe aun verificacion de tipos; las operaciones asumen enteros/booleanos y pueden fallar si se usan tipos no previstos.
+Durante el analisis semantico se reporta un error del tipo `[SEMANTIC] Variable no definida: y`. Tambien se detectan incompatibilidades de tipos (por ejemplo, sumar BOOL con INT o usar `range` con variables).
 
 ### 6.4 Salida generada
 
@@ -160,4 +167,4 @@ El archivo completo se escribe en `build/ejemplo.asm` cuando se redirige la sali
 
 ## 7. Conclusiones
 
-El proyecto cumple el objetivo de traducir un subconjunto de Python a ASM x86_64 con una arquitectura didactica y clara. Se implementan estructuras de control, expresiones y manejo de indentacion, demostrando el flujo completo de un compilador. Como mejoras futuras, se recomienda agregar una fase real de analisis semantico con tabla de simbolos, mejor manejo de errores, soporte robusto para `print`, y ampliacion del lenguaje (funciones de usuario, listas, tipos adicionales y optimizaciones de codigo).
+El proyecto cumple el objetivo de traducir un subconjunto de Python a ASM x86_64 con una arquitectura didactica y clara. Se implementan estructuras de control, expresiones y manejo de indentacion, demostrando el flujo completo de un compilador. Como mejoras futuras, se recomienda ampliar el analisis semantico (scoping y mejores mensajes), completar la implementacion de `**`, permitir `range()` con expresiones, agregar short-circuit en logicos y ampliar el lenguaje (funciones de usuario, listas, tipos adicionales y optimizaciones).

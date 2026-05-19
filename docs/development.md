@@ -32,7 +32,7 @@ src/
 - **Parser Generator**: ANTLR 4.13.2
 - **Target**: x86_64 Assembly (Linux ABI)
 - **Build System**: Manual compilation
-- **Testing**: Archivos de prueba en `src/test/`
+- **Testing**: Archivos de prueba en `tests/` (valid/invalid)
 
 ## Configuración del Entorno de Desarrollo
 
@@ -69,7 +69,7 @@ src/
 3. **Verificar Setup**
 
    ```bash
-   java -cp "build:lib/*" parser.Main src/test/ejemplo.py
+    java -cp "build:lib/*" parser.Main tests/valid/test_for_sum.py
    ```
 
 ## Flujo de Desarrollo
@@ -80,12 +80,14 @@ El analisis semantico se ejecuta despues de construir el AST y antes del codegen
 Se encarga de validar tipos y reglas semanticas minimas para evitar generar ASM invalido.
 
 **Reglas actuales:**
-- Registro de tipos por variable en asignaciones
-- Operaciones aritmeticas solo entre INT
+- Registro de variables definidas y tipos inferidos
+- Operaciones aritmeticas solo entre INT (`+`, `-`, `*`, `/`, `%`, `**`)
 - Operadores logicos `and`/`or` solo con BOOL
-- Comparaciones con tipos compatibles
+- Comparaciones de orden solo entre INT; `==`/`!=` requieren tipos compatibles
+- Condiciones de `if`/`while` permiten BOOL o INT
 - `print()` solo con un argumento
-- `range()` solo con argumentos enteros
+- `range()` solo con enteros literales (1 a 3 argumentos)
+- Llamadas a funciones distintas de `print` se reportan como error
 
 **Ubicacion:** `src/main/java/parser/SemanticAnalyzer.java`
 
@@ -252,7 +254,7 @@ public String visit(FuncDefNode node) {
 
 #### Crear Archivo de Prueba
 
-`src/test/test_func.py`:
+`tests/valid/test_func.py`:
 
 ```python
 def suma(a, b):
@@ -266,7 +268,7 @@ print(x)  # Debería imprimir 8
 #### Ejecutar y Verificar
 
 ```bash
-java -cp "build;lib/*" parser.Main src/test/test_func.py
+java -cp "build;lib/*" parser.Main tests/valid/test_func.py
 cat build/ejemplo.asm  # Verificar código generado
 
 # Ensamblar y ejecutar
@@ -381,11 +383,17 @@ for i in range(5):
         print("Impar")
 ```
 
+Para ejecutar todos los tests (valid/invalid):
+
+```bash
+python tests/test_runner.py
+```
+
 ### Verificación de Output
 
 ```bash
 # Compilar
-java -cp "build:lib/*" parser.Main src/test/test_feature.py
+java -cp "build:lib/*" parser.Main tests/valid/test_feature.py
 
 # Ensamblar y ejecutar
 nasm -f elf64 build/ejemplo.asm -o build/ejemplo.o
@@ -414,13 +422,14 @@ gcc build/ejemplo.o -o build/programa
 1. **Funciones definidas por usuario** (parcialmente diseñado arriba)
 2. **Arrays y listas** con indexación y slicing
 3. **Operadores de asignación compuesta** (`+=`, `-=`, `*=`, `/=`)
-4. **Range con múltiples argumentos** (`range(start, stop, step)`)
-5. **Import system** y módulos
-6. **Diccionarios** y otras estructuras de datos
-7. **Excepciones** (try/except)
-8. **Clases y objetos** (OOP básico)
-9. **Operaciones con strings** (concatenación, slicing, format)
-10. **Tipos float/decimal** con operaciones de punto flotante
+4. **Range con expresiones/variables** (hoy requiere literales)
+5. **Potencia `**` en ASM** (actualmente placeholder)
+6. **Import system** y módulos
+7. **Diccionarios** y otras estructuras de datos
+8. **Excepciones** (try/except)
+9. **Clases y objetos** (OOP básico)
+10. **Operaciones con strings** (concatenación, slicing, format)
+11. **Tipos float/decimal** con operaciones de punto flotante
 
 ## Arquitectura de Extensión
 
@@ -447,14 +456,15 @@ El diseño actual permite agregar backends alternativos:
 Futuras mejoras pueden incluir:
 
 ```java
-public class SemanticAnalyzer implements ASTVisitor<Void> {
-    private SymbolTable symbolTable;
-    private List<SemanticError> errors;
+public class SemanticAnalyzer implements ASTVisitor<ValueType> {
+    private final Map<String, ValueType> varTypes = new HashMap<>();
+    private final List<String> errors = new ArrayList<>();
     
-    public void analyze(ProgNode program) {
+    public boolean analyze(ASTNode root) {
         // Type checking
         // Variable declaration checking
         // Function call validation
+        return errors.isEmpty();
     }
 }
 ```

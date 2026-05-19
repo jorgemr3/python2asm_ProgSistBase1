@@ -5,30 +5,37 @@
 El compilador está diseñado con una arquitectura de múltiples fases que transforma código Python en ensamblador x86_64 siguiendo el patrón clásico de compiladores:
 
 ```
-Código Python → Lexer → Parser → AST → Analisis Semantico → Generador de Codigo → ASM x86_64
+Código Python → Preprocesador → Lexer → Parser → AST → Analisis Semantico → Generador de Codigo → ASM x86_64
 ```
 
 ## Componentes Principales
 
 ### 1. **Frontend - Análisis Léxico y Sintáctico**
 
-#### **Lexer (PythonSubsetLexer + IndentationLexer)**
+#### **Preprocesador de Indentación (PythonIndentPreprocessor)**
 
-- **Ubicación**: `src/main/java/parser/`
-- **Responsabilidad**: Convierte el texto fuente en tokens
+- **Ubicación**: `src/main/java/util/`
+- **Responsabilidad**: Inserta tokens `INDENT` y `DEDENT` según la indentación
+- **Validaciones**: Detecta indentación inconsistente antes del lexer
+
+#### **Lexer (PythonSubsetLexer)**
+
+- **Ubicación**: `src/main/antlr4/parser/`
+- **Responsabilidad**: Convierte el texto preprocesado en tokens
 - **Características especiales**:
-  - Manejo de indentación Python con tokens `INDENT` y `DEDENT`
-  - Procesamiento de strings, números, identificadores
-  - Soporte para palabras clave (`for`, `while`, `and`, `or`, etc.)
+  - Strings con comillas simples o dobles
+  - Comentarios con `#` ignorados
+  - Palabras clave (`for`, `while`, `if`, `and`, `or`, `not`, `True`, `False`)
 
 #### **Parser (PythonSubsetParser)**
 
 - **Generado por**: ANTLR4 desde `grammar/PythonSubset.g4`
 - **Responsabilidad**: Análisis sintáctico y construcción del parse tree
 - **Soporte para**:
-  - Expresiones aritméticas con precedencia correcta
-  - Estructuras de control (for, while)
-  - Asignaciones y llamadas a funciones
+  - Expresiones aritméticas con precedencia correcta (`+`, `-`, `*`, `/`, `%`, `**`)
+  - Expresiones lógicas y comparaciones (`and`, `or`, `not`, `==`, `!=`, `<`, `>`, `<=`, `>=`)
+  - Estructuras de control (`for`, `while`, `if/elif/else`)
+  - Asignaciones, expresiones como sentencia y llamadas a función
 
 ### 2. **Representación Intermedia - AST**
 
@@ -42,13 +49,17 @@ Código Python → Lexer → Parser → AST → Analisis Semantico → Generador
 |------|-----------|---------|
 | `ProgNode` | Programa completo | Raíz del AST |
 | `AssignNode` | Asignaciones | `x = 10` |
+| `ExprStmtNode` | Expresiones como sentencia | `print(x)` |
 | `BinaryOpNode` | Operaciones binarias | `x + y`, `a < b`, `a and b` |
 | `UnaryOpNode` | Operaciones unarias | `-x`, `not y`, `+z` |
 | `ForNode` | Ciclos for | `for i in range(10):` |
 | `WhileNode` | Ciclos while | `while x < 5:` |
 | `IfNode` | Condicionales | `if x > 5: ... elif x == 5: ... else: ...` |
 | `FuncCallNode` | Llamadas a función | `print(x)` |
+| `IntNode` | Literales enteros | `42` |
+| `BoolNode` | Literales booleanos | `True`, `False` |
 | `StringNode` | Literales de cadena | `"Hola mundo"` |
+| `VarRefNode` | Referencias a variables | `x` |
 | `RangeNode` | Iterables range | `range(10)`, `range(0, 10, 2)` |
 
 #### **ASTBuilder**
@@ -64,11 +75,14 @@ Código Python → Lexer → Parser → AST → Analisis Semantico → Generador
 - **Ubicacion**: `src/main/java/parser/SemanticAnalyzer.java`
 - **Responsabilidad**: Validar tipos y reglas semanticas basicas antes del codegen
 - **Validaciones**:
-  - Registro de tipos por variable
-  - Operaciones binarias y unarias (por ejemplo, `+` solo entre INT)
-  - Comparaciones con tipos compatibles
-  - Uso de `print()` con un solo argumento
-  - `range()` con argumentos enteros
+  - Registro de variables definidas y tipos inferidos
+  - Operaciones aritméticas solo con INT (`+`, `-`, `*`, `/`, `%`, `**`)
+  - Operadores lógicos solo con BOOL (`and`, `or`, `not`)
+  - Comparaciones de orden solo entre INT; `==`/`!=` requieren tipos compatibles
+  - Condiciones de `if`/`while` permiten BOOL o INT
+  - `print()` con un solo argumento
+  - `range()` solo con enteros literales (1 a 3 argumentos)
+  - Rechazo de llamadas a funciones no soportadas
 
 ### 4. **Backend - Generacion de Codigo**
 
@@ -91,7 +105,7 @@ Código Python → Lexer → Parser → AST → Analisis Semantico → Generador
 ### Fase 1: Preprocesamiento
 
 ```java
-// Main.java - preprocessPythonIndentation()
+// PythonIndentPreprocessor.preprocess()
 "for i in range(3):\n    print(i)" 
 → 
 "for i in range(3):\nINDENT print(i)\nDEDENT"
@@ -120,7 +134,7 @@ Parse Tree → ForNode(variable="i", iterable=RangeNode([3]), body=[...])
 
 ```java
 // SemanticAnalyzer
-// AST -> validacion de tipos y reglas semanticas
+// AST -> validacion de tipos, reglas basicas y restricciones de range/print
 ```
 
 ### Fase 6: Generacion de Codigo
@@ -185,6 +199,7 @@ str12345: db "Hello World", 0x0A, 0
 
 - **Stack-based evaluation**: Usa `push`/`pop` para evaluación
 - **Registros temporales**: `rax`, `rbx` para operaciones
+- **Lógicos**: `and`/`or` evalúan ambos operandos (sin short-circuit)
 
 ## Extensibilidad
 
@@ -208,6 +223,7 @@ str12345: db "Hello World", 0x0A, 0
 - Eliminación de código muerto
 - Optimización de registros (actualmente stack-based)
 - Plegado de constantes
-- Short-circuit evaluation para operadores lógicos (actualmente evalúa ambos operandos)
+- Short-circuit evaluation para operadores lógicos
+- Implementación real de `**` (actualmente es placeholder en ASM)
 - Loop unrolling para rangos conocidos en compile-time
 - Inline de funciones print cuando sea posible
